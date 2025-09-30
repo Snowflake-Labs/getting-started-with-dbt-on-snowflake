@@ -1,3 +1,4 @@
 tasty_bytes_dbt_demo/target/
 tasty_bytes_dbt_demo/dbt_packages/
 tasty_bytes_dbt_demo/logs/
+.vscode/settings.json
