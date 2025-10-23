@@ -2,7 +2,7 @@ version: 2
 sources:
 - name: tb_101
   description: 'Point of Sale source data'
-  database: tasty_bytes_dbt_db
+  database: cyarjah_db
   schema: RAW
   tables:
   - name: COUNTRY

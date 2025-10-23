@@ -11,9 +11,9 @@ USE ROLE DATA_ENGINEER;
 USE WAREHOUSE COMPUTE_WH;
 
 -- CREATE DATABASE IF NOT EXISTS tasty_bytes_dbt_db;
--- CREATE OR REPLACE SCHEMA tasty_bytes_dbt_db.raw;
--- CREATE OR REPLACE SCHEMA tasty_bytes_dbt_db.dev;
--- CREATE OR REPLACE SCHEMA tasty_bytes_dbt_db.prod;
+CREATE OR REPLACE SCHEMA CYARJAH_DB.raw;
+CREATE OR REPLACE SCHEMA CYARJAH_DB.dev;
+CREATE OR REPLACE SCHEMA CYARJAH_DB.prod;
 
 
 -- ALTER SCHEMA tasty_bytes_dbt_db.dev SET LOG_LEVEL = 'INFO';
@@ -38,13 +38,13 @@ CREATE OR REPLACE EXTERNAL ACCESS INTEGRATION dbt_access_integration
   ALLOWED_NETWORK_RULES = (CYARJAH_DB.public.dbt_network_rule)
   ENABLED = true;
 
-CREATE OR REPLACE FILE FORMAT tasty_bytes_dbt_db.public.csv_ff 
+CREATE OR REPLACE FILE FORMAT CYARJAH_DB.public.csv_ff 
 type = 'csv';
 
 CREATE OR REPLACE STAGE CYARJAH_DB.public.s3load
 COMMENT = 'Quickstarts S3 Stage Connection'
 url = 's3://sfquickstarts/frostbyte_tastybytes/'
-file_format = tasty_bytes_dbt_db.public.csv_ff;
+file_format = CYARJAH_DB.public.csv_ff;
 
 /*--
  raw zone table build 
@@ -190,35 +190,35 @@ COMMENT = '{"origin":"sf_sit-is", "name":"tasty-bytes-dbt", "version":{"major":1
 
 -- country table load
 COPY INTO CYARJAH_DB.raw.country
-FROM @tasty_bytes_dbt_db.public.s3load/raw_pos/country/;
+FROM @CYARJAH_DB.public.s3load/raw_pos/country/;
 
 -- franchise table load
 COPY INTO CYARJAH_DB.raw.franchise
-FROM @tasty_bytes_dbt_db.public.s3load/raw_pos/franchise/;
+FROM @CYARJAH_DB.public.s3load/raw_pos/franchise/;
 
 -- location table load
 COPY INTO CYARJAH_DB.raw.location
-FROM @tasty_bytes_dbt_db.public.s3load/raw_pos/location/;
+FROM @CYARJAH_DB.public.s3load/raw_pos/location/;
 
 -- menu table load
 COPY INTO CYARJAH_DB.raw.menu
-FROM @tasty_bytes_dbt_db.public.s3load/raw_pos/menu/;
+FROM @CYARJAH_DB.public.s3load/raw_pos/menu/;
 
 -- truck table load
 COPY INTO CYARJAH_DB.raw.truck
-FROM @tasty_bytes_dbt_db.public.s3load/raw_pos/truck/;
+FROM @CYARJAH_DB.public.s3load/raw_pos/truck/;
 
 -- customer_loyalty table load
 COPY INTO CYARJAH_DB.raw.customer_loyalty
-FROM @tasty_bytes_dbt_db.public.s3load/raw_customer/customer_loyalty/;
+FROM @CYARJAH_DB.public.s3load/raw_customer/customer_loyalty/;
 
 -- order_header table load
 COPY INTO CYARJAH_DB.raw.order_header
-FROM @tasty_bytes_dbt_db.public.s3load/raw_pos/order_header/;
+FROM @CYARJAH_DB.public.s3load/raw_pos/order_header/;
 
 -- order_detail table load
 COPY INTO CYARJAH_DB.raw.order_detail
-FROM @tasty_bytes_dbt_db.public.s3load/raw_pos/order_detail/;
+FROM @CYARJAH_DB.public.s3load/raw_pos/order_detail/;
 
 -- setup completion note
 SELECT 'tasty_bytes_dbt_db setup is now complete' AS note;
