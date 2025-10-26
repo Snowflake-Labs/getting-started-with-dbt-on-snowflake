@@ -6,7 +6,7 @@ tasty_bytes:
       account: 'not needed'
       user: 'not needed'
       role: accountadmin
-      database: tasty_bytes_dbt_db
+      database: TASTY_BYTES_DBT_DB_TEST
       schema: silver
       warehouse: tasty_bytes_dbt_wh
     gold:
@@ -14,6 +14,6 @@ tasty_bytes:
       account: 'not needed'
       user: 'not needed'
       role: accountadmin
-      database: tasty_bytes_dbt_db
+      database: TASTY_BYTES_DBT_DB_TEST
       schema: gold
       warehouse: tasty_bytes_dbt_wh
