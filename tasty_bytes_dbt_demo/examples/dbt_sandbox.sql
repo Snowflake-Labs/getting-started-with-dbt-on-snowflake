@@ -1,4 +1,4 @@
-SHOW TABLES IN DATABASE tasty_bytes_dbt_db;
+TASTY_BYTES_DBT_DB.DEV.TASTY_BYTES_DBTSHOW TABLES IN DATABASE tasty_bytes_dbt_db;
 
 SHOW VIEWS IN DATABASE tasty_bytes_dbt_db;
 
@@ -63,8 +63,69 @@ SHOW GIT REPOSITORIES IN SCHEMA USER$TAKUYANADAYOSHI.PUBLIC;
 
 ALTER GIT REPOSITORY tasty_bytes_dbt FETCH;
 
+-- データベースとスキーマを使用
+USE DATABASE tasty_bytes_dbt_db;
+USE SCHEMA dev;
+
 -- dbt runを実行
-EXECUTE DBT PROJECT FROM GIT REPOSITORY tasty_bytes_dbt_db.dev.tasty_bytes_dbt
+EXECUTE DBT PROJECT FROM WORKSPACE USER$.PUBLIC.tasty_bytes_dbt 
+  PROJECT_ROOT='/tasty_bytes_dbt_demo' 
+  ARGS='run --target dev' 
+  EXTERNAL_ACCESS_INTEGRATIONS = ();
+
+  -- ACCOUNTADMINロールに切り替えてから再試行
+-- ACCOUNTADMINロールで実行
+USE ROLE ACCOUNTADMIN;
+
+-- Workspaceへの権限を付与
+GRANT USAGE ON DATABASE TASTY_BYTES_DBT_DB TO ROLE ACCOUNTADMIN;
+GRANT USAGE ON SCHEMA TASTY_BYTES_DBT_DB.DEV TO ROLE ACCOUNTADMIN;
+
+-- Git Repositoryへの権限を付与
+GRANT READ ON GIT REPOSITORY TASTY_BYTES_DBT_DB.DEV.TASTY_BYTES_DBT TO ROLE ACCOUNTADMIN;
+GRANT WRITE ON GIT REPOSITORY TASTY_BYTES_DBT_DB.DEV.TASTY_BYTES_DBT TO ROLE ACCOUNTADMIN;
+
+-- Warehouseへの権限を付与（使用するウェアハウス名に変更）
+GRANT USAGE ON WAREHOUSE COMPUTE_WH TO ROLE ACCOUNTADMIN;
+
+-- ACCOUNTADMINロールで実行
+USE ROLE ACCOUNTADMIN;
+USE DATABASE TASTY_BYTES_DBT_DB;
+USE SCHEMA DEV;
+
+-- Dbt Projectを作成
+CREATE DBT PROJECT tasty_bytes_dbt_project
+  FROM $$snow://git/TASTY_BYTES_DBT_DB/DEV/TASTY_BYTES_DBT/versions/main/tasty_bytes_dbt_demo$$;
+
+  -- Git Repositoryの詳細を確認
+DESC GIT REPOSITORY TASTY_BYTES_DBT_DB.DEV.TASTY_BYTES_DBT;
+
+-- ファイル構造を確認
+LS @TASTY_BYTES_DBT_DB.DEV.TASTY_BYTES_DBT/branches/main;
+
+-- USER$TAKUYANADAYOSHI.PUBLICスキーマのGit Repositoryを確認
+SHOW GIT REPOSITORIES IN SCHEMA USER$TAKUYANADAYOSHI.PUBLIC;
+
+-- Git Repositoryを作成
+CREATE OR REPLACE GIT REPOSITORY "getting-started-with-dbt-on-snowflake"
+  API_INTEGRATION = git_api_integration
+  ORIGIN = 'https://github.com/nadayoshi523/getting-started-with-dbt-on-snowflake.git';
+
+  ALTER GIT REPOSITORY "getting-started-with-dbtTASTY_BYTES_DBT_DB.PUBLIC.TASTY_BYTES_DBTTASTY_BYTES_DBT_DB.PUBLIC.TASTY_BYTES_DBT-on-snowflake" FETCH;
+
+  EXECUTE DBT PROJECT FROM WORKSPACE USER$TAKUYANADAYOSHI.PUBLIC.tasty_bytes_dbt
+  PROJECT_ROOT='/tasty_bytes_dbt_demo'
+
+
+  USE ROLE ACCOUNTADMIN;
+
+-- USER$TAKUYANADAYOSHI.PUBLICにGit Repositoryを作成
+CREATE OR REPLACE GIT REPOSITORY tasty_bytes_dbt
+  API_INTEGRATION = git_api_integration
+  ORIGIN = 'https://github.com/nadayoshi523/getting-started-with-dbt-on-snowflake.git';
+
+-- 実行
+EXECUTE DBT PROJECT FROM GIT REPOSITORY tasty_bytes_dbt
   PROJECT_ROOT='/tasty_bytes_dbt_demo'
   ARGS='run --target dev'
   EXTERNAL_ACCESS_INTEGRATIONS = ();

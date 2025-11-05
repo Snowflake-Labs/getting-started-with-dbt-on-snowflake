@@ -1,0 +1,9 @@
+dbt_test:
+  target: dev
+  outputs:
+    dev:
+      type: snowflake
+      role: ACCOUNTADMIN
+      warehouse: COMPUTE_WH
+      database: TASTY_BYTES_DBT_DB
+      schema: PUBLIC
