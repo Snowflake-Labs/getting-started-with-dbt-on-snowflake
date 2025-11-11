@@ -38,10 +38,10 @@ jobs:
           pip install dbt-core dbt-snowflake
       
       # ステップ4: dbtの依存パッケージをインストール
-      - name: dbt deps
-        run: dbt deps  # packages.ymlに定義されたパッケージをインストール
-        env:
-          DBT_PROFILES_DIR: .  # profiles.ymlの場所を指定（カレントディレクトリ）
+      #- name: dbt deps
+      #  run: dbt deps  # packages.ymlに定義されたパッケージをインストール
+     #   env:
+     #     DBT_PROFILES_DIR: .  # profiles.ymlの場所を指定（カレントディレクトリ）
       
       # ステップ5: dbtの接続確認
       - name: dbt debug
