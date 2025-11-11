@@ -18,6 +18,12 @@ jobs:
   test:
     runs-on: ubuntu-latest  # Ubuntu最新版の仮想マシンで実行
     if: github.event_name == 'pull_request'  # PRの時のみこのジョブを実行
+        
+    # デフォルトの作業ディレクトリを設定
+    defaults:
+      run:
+        working-directory: ./getting-started-with-dbt-on-snowflake  # dbtプロジェクトのパスに変更
+    
     
     steps:
       # ステップ1: リポジトリのコードをチェックアウト（取得）
