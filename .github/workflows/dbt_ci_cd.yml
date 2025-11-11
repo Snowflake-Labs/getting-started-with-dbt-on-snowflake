@@ -85,6 +85,10 @@ jobs:
     # mainブランチへのpushイベントの時のみ実行（PRマージ後）
     if: github.event_name == 'push' && github.ref == 'refs/heads/main'
     
+    # デフォルトの作業ディレクトリを設定
+    defaults:
+      run:
+        working-directory: ./tasty_bytes_dbt_demo  # dbtプロジェクトのパスに変更
     steps:
       # ステップ1: リポジトリのコードをチェックアウト
       - name: Checkout code
