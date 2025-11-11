@@ -1,19 +1,30 @@
-tasty_bytes:
-  target: dev
-  outputs:
+# profiles.yml
+# dbtがデータベースに接続するための設定ファイル
+
+tasty_bytes:  # dbt_project.ymlの「name」フィールドと一致させる必要がある
+  target: dev  # デフォルトで使用するターゲット環境（ローカル開発時はdev）
+  
+  outputs:  # 接続先環境の定義（複数環境を定義可能）
+    
+    # 開発環境の設定
     dev:
-      type: snowflake
-      account: 'not needed'
-      user: 'not needed'
-      role: accountadmin
-      database: tasty_bytes_dbt_db
-      schema: dev
-      warehouse: tasty_bytes_dbt_wh
+      type: snowflake  # 使用するデータウェアハウスの種類
+      # 以下、環境変数から値を取得（{{ env_var('変数名') }}）
+      account: "{{ env_var('DBT_SNOWFLAKE_ACCOUNT') }}"  # Snowflakeアカウント
+      user: "{{ env_var('DBT_USER') }}"  # ログインユーザー名
+      password: "{{ env_var('DBT_PASSWORD') }}"  # パスワード
+      database: TASTY_BYTES_DBT_DB  # 接続先データベース名
+      schema: dev  # デフォルトスキーマ名
+      warehouse: COMPUTE_WH  # 使用するウェアハウス（Snowflake特有）
+      role: ACCOUNTADMIN  # 使用するロール（権限）
+      
+    # 本番環境の設定
     prod:
       type: snowflake
-      account: 'not needed'
-      user: 'not needed'
-      role: accountadmin
-      database: tasty_bytes_dbt_db
-      schema: prod
-      warehouse: tasty_bytes_dbt_wh
+      account: "{{ env_var('DBT_SNOWFLAKE_ACCOUNT') }}"  # 同じアカウント
+      user: "{{ env_var('DBT_USER_PROD') }}"  # 本番用ユーザー（権限を分離）
+      password: "{{ env_var('DBT_PASSWORD_PROD') }}"  # 本番用パスワード
+      database: TASTY_BYTES_DBT_DB  # 接続先データベース名
+      schema: PROD  # デフォルトスキーマ名
+      warehouse: COMPUTE_WH  # 使用するウェアハウス（Snowflake特有）
+      role: ACCOUNTADMIN  # 使用するロール（権限）
