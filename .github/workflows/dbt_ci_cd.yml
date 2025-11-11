@@ -22,7 +22,7 @@ jobs:
     # デフォルトの作業ディレクトリを設定
     defaults:
       run:
-        working-directory: ./getting-started-with-dbt-on-snowflake/tasty_bytes_dbt_demo  # dbtプロジェクトのパスに変更
+        working-directory: ./tasty_bytes_dbt_demo  # dbtプロジェクトのパスに変更
     
     
     steps:
