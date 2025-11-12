@@ -1,6 +1,5 @@
 # profiles.yml
 # dbtがデータベースに接続するための設定ファイル
-
 tasty_bytes:  # dbt_project.ymlの「name」フィールドと一致させる必要がある
   target: dev  # デフォルトで使用するターゲット環境（ローカル開発時はdev）
   
@@ -11,8 +10,8 @@ tasty_bytes:  # dbt_project.ymlの「name」フィールドと一致させる必
       type: snowflake  # 使用するデータウェアハウスの種類
       # 以下、環境変数から値を取得（{{ env_var('変数名') }}）
       account: "{{ env_var('DBT_SNOWFLAKE_ACCOUNT') }}"  # Snowflakeアカウント
-      user: "{{ env_var('DBT_USER') }}"  # ログインユーザー名
-      password: "{{ env_var('DBT_PASSWORD') }}"  # パスワード
+      user: "{{ env_var('DBT_SNOWFLAKE_USER') }}"  # ← 修正：DBT_USER → DBT_SNOWFLAKE_USER
+      password: "{{ env_var('DBT_SNOWFLAKE_PASSWORD') }}"  # ← 修正：DBT_PASSWORD → DBT_SNOWFLAKE_PASSWORD
       database: TASTY_BYTES_DBT_DB  # 接続先データベース名
       schema: dev  # デフォルトスキーマ名
       warehouse: COMPUTE_WH  # 使用するウェアハウス（Snowflake特有）
@@ -22,8 +21,8 @@ tasty_bytes:  # dbt_project.ymlの「name」フィールドと一致させる必
     prod:
       type: snowflake
       account: "{{ env_var('DBT_SNOWFLAKE_ACCOUNT') }}"  # 同じアカウント
-      user: "{{ env_var('DBT_USER_PROD') }}"  # 本番用ユーザー（権限を分離）
-      password: "{{ env_var('DBT_PASSWORD_PROD') }}"  # 本番用パスワード
+      user: "{{ env_var('DBT_SNOWFLAKE_USER_PROD') }}"  # ← 修正：DBT_USER_PROD → DBT_SNOWFLAKE_USER_PROD
+      password: "{{ env_var('DBT_SNOWFLAKE_PASSWORD_PROD') }}"  # ← 修正：DBT_PASSWORD_PROD → DBT_SNOWFLAKE_PASSWORD_PROD
       database: TASTY_BYTES_DBT_DB  # 接続先データベース名
       schema: PROD  # デフォルトスキーマ名
       warehouse: COMPUTE_WH  # 使用するウェアハウス（Snowflake特有）
