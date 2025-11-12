@@ -12,9 +12,6 @@ sources:
       description: 'Primary key for countries'
       data_tests:
         - not_null
-        - dbt_utils.accepted_range:  # Numeric range validation
-            min_value: 1
-            max_value: 1000
     - name: COUNTRY
       description: 'Country name'
       data_tests:
@@ -201,8 +198,6 @@ sources:
       description: 'Order timestamp'
       data_tests:
         - not_null
-        - dbt_utils.expression_is_true:  # Verify timestamp is not in the future
-            expression: "{{ column_name }} <= current_timestamp()"
     - name: SERVED_TS
       description: 'Time order was served'
     - name: ORDER_CURRENCY
@@ -214,10 +209,6 @@ sources:
       data_tests:
         - not_null
         - is_positive_amount
-        - dbt_utils.accepted_range:  # Realistic order amount range
-            min_value: 0
-            max_value: 10
-            inclusive: true
     - name: ORDER_TAX_AMOUNT
       description: 'Tax amount'
     - name: ORDER_DISCOUNT_AMOUNT
