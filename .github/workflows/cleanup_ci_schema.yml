@@ -1,0 +1,81 @@
+name: Cleanup CI Schema
+
+on:
+  pull_request:
+    types: [closed]
+
+jobs:
+  cleanup:
+    runs-on: ubuntu-latest
+    
+    env:
+      CI_SCHEMA_SUFFIX: ci_pr_${{ github.event.pull_request.number }}
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+      
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.10'
+      
+      - name: Install Snowflake connector
+        run: |
+          pip install snowflake-connector-python
+      
+      - name: Drop CI schema
+        env:
+          SNOWFLAKE_ACCOUNT: ${{ secrets.SNOWFLAKE_ACCOUNT }}
+          SNOWFLAKE_USER: ${{ secrets.SNOWFLAKE_USER }}
+          SNOWFLAKE_PASSWORD: ${{ secrets.SNOWFLAKE_PASSWORD }}
+          SNOWFLAKE_ROLE: ${{ secrets.SNOWFLAKE_ROLE }}
+          SNOWFLAKE_WAREHOUSE: ${{ secrets.SNOWFLAKE_WAREHOUSE }}
+          SNOWFLAKE_DATABASE: ${{ secrets.SNOWFLAKE_DATABASE }}
+        run: |
+          python3 << 'PYTHON_SCRIPT'
+          import os
+          import snowflake.connector
+          
+          # Snowflake接続
+          conn = snowflake.connector.connect(
+              account=os.environ['SNOWFLAKE_ACCOUNT'],
+              user=os.environ['SNOWFLAKE_USER'],
+              password=os.environ['SNOWFLAKE_PASSWORD'],
+              role=os.environ['SNOWFLAKE_ROLE'],
+              warehouse=os.environ['SNOWFLAKE_WAREHOUSE'],
+              database=os.environ['SNOWFLAKE_DATABASE']
+          )
+          
+          try:
+              cursor = conn.cursor()
+              schema_name = os.environ['CI_SCHEMA_SUFFIX']
+              
+              # スキーマの存在確認
+              cursor.execute(f"SHOW SCHEMAS LIKE '{schema_name.upper()}'")
+              if cursor.rowcount > 0:
+                  print(f"Dropping schema: {schema_name}")
+                  cursor.execute(f"DROP SCHEMA IF EXISTS {schema_name} CASCADE")
+                  print(f"✅ Schema {schema_name} dropped successfully")
+              else:
+                  print(f"ℹ️ Schema {schema_name} does not exist, nothing to clean up")
+          
+          except Exception as e:
+              print(f"❌ Error: {str(e)}")
+              raise
+          
+          finally:
+              cursor.close()
+              conn.close()
+          PYTHON_SCRIPT
+      
+      - name: Comment on PR
+        uses: actions/github-script@v7
+        with:
+          script: |
+            github.rest.issues.createComment({
+              issue_number: context.issue.number,
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              body: `🧹 CI schema \`${{ env.CI_SCHEMA_SUFFIX }}\` has been cleaned up.`
+            });
