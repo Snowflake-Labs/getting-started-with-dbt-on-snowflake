@@ -88,11 +88,11 @@ jobs:
     defaults:
       run:
         working-directory: ./tasty_bytes_dbt_demo  # dbtプロジェクトのパスに変更
-   
-steps: # ステップ1: リポジトリのコードをチェックアウト
-  - name: Checkout code
-    uses: actions/checkout@v3
-      
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+    
       # ステップ2: Python環境のセットアップ
       - name: Setup Python
         uses: actions/setup-python@v4
