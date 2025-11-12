@@ -20,9 +20,9 @@ tasty_bytes:  # dbt_project.ymlの「name」フィールドと一致させる必
     # 本番環境の設定
     prod:
       type: snowflake
-      account: "{{ env_var('DBT_SNOWFLAKE_ACCOUNT') }}"  # 同じアカウント
-      user: "{{ env_var('DBT_SNOWFLAKE_USER_PROD') }}"  # ← 修正：DBT_USER_PROD → DBT_SNOWFLAKE_USER_PROD
-      password: "{{ env_var('DBT_SNOWFLAKE_PASSWORD_PROD') }}"  # ← 修正：DBT_PASSWORD_PROD → DBT_SNOWFLAKE_PASSWORD_PROD
+      account: "{{ secrets.DBT_SNOWFLAKE_ACCOUNT }}"  # 同じアカウント
+      user: "{{ secrets.DBT_SNOWFLAKE_USER_PROD }}"  # ← 修正：DBT_USER_PROD → DBT_SNOWFLAKE_USER_PROD
+      password: "{{ secrets.DBT_SNOWFLAKE_PASSWORD_PROD}}"  # ← 修正：DBT_PASSWORD_PROD → DBT_SNOWFLAKE_PASSWORD_PROD
       database: TASTY_BYTES_DBT_DB  # 接続先データベース名
       schema: PROD  # デフォルトスキーマ名
       warehouse: COMPUTE_WH  # 使用するウェアハウス（Snowflake特有）
