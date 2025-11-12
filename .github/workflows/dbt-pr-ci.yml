@@ -1,0 +1,167 @@
+name: dbt PR CI
+
+on:
+  pull_request:
+    types: [opened, reopened, synchronize, ready_for_review]
+    paths:
+      - 'models/**'
+      - 'macros/**'
+      - 'tests/**'
+      - 'seeds/**'
+      - 'dbt_project.yml'
+      - 'packages.yml'
+
+# 同じPRで複数のCIが走った場合、古いものをキャンセル
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  dbt-ci:
+    # ドラフトPRではスキップ
+    if: github.event.pull_request.draft == false
+    runs-on: ubuntu-latest
+    
+    env:
+      DBT_PROFILES_DIR: ${{ github.workspace }}
+      # PR番号からユニークなスキーマ名を生成
+      CI_SCHEMA_SUFFIX: ci_pr_${{ github.event.pull_request.number }}
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+      
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.10'
+          cache: 'pip'
+      
+      - name: Install dbt
+        run: |
+          pip install --upgrade pip
+          pip install dbt-core dbt-snowflake
+      
+      - name: Verify dbt installation
+        run: |
+          dbt --version
+      
+      - name: Create profiles.yml
+        run: |
+          mkdir -p ${{ github.workspace }}
+          cat > ${{ github.workspace }}/profiles.yml <<EOF
+          default:
+            target: ci
+            outputs:
+              ci:
+                type: snowflake
+                account: ${{ secrets.SNOWFLAKE_ACCOUNT }}
+                user: ${{ secrets.SNOWFLAKE_USER }}
+                password: ${{ secrets.SNOWFLAKE_PASSWORD }}
+                role: ${{ secrets.SNOWFLAKE_ROLE }}
+                warehouse: ${{ secrets.SNOWFLAKE_WAREHOUSE }}
+                database: ${{ secrets.SNOWFLAKE_DATABASE }}
+                schema: ${{ env.CI_SCHEMA_SUFFIX }}
+                threads: 4
+                client_session_keep_alive: False
+          EOF
+      
+      - name: Install dbt dependencies
+        run: dbt deps
+      
+      - name: Create CI schema
+        run: |
+          dbt run-operation create_schema_if_not_exists --args "{schema_name: ${{ env.CI_SCHEMA_SUFFIX }}}"
+        continue-on-error: true
+      
+      - name: Debug - List dbt models
+        run: dbt ls
+      
+      - name: Run dbt models (Slim CI)
+        run: |
+          # 変更されたモデルとその下流のみを実行
+          # 本番環境のmanifestがある場合は state:modified+ を使用
+          # ない場合は全モデルを実行
+          if [ -f "./manifest.json" ]; then
+            dbt run --select state:modified+ --defer --state ./
+          else
+            dbt run
+          fi
+      
+      - name: Run dbt tests
+        run: |
+          if [ -f "./manifest.json" ]; then
+            dbt test --select state:modified+ --defer --state ./
+          else
+            dbt test
+          fi
+      
+      - name: Generate dbt docs
+        if: always()
+        run: dbt docs generate
+      
+      - name: Upload dbt artifacts
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: dbt-artifacts-pr-${{ github.event.pull_request.number }}
+          path: |
+            target/compiled/**
+            target/run/**
+            target/manifest.json
+            target/run_results.json
+          retention-days: 7
+      
+      - name: Comment PR with results
+        if: always()
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const fs = require('fs');
+            let runResults = { results: [] };
+            
+            try {
+              runResults = JSON.parse(fs.readFileSync('target/run_results.json', 'utf8'));
+            } catch (e) {
+              console.log('Could not read run_results.json');
+            }
+            
+            const totalModels = runResults.results.length;
+            const successCount = runResults.results.filter(r => r.status === 'success').length;
+            const errorCount = runResults.results.filter(r => r.status === 'error').length;
+            const failCount = runResults.results.filter(r => r.status === 'fail').length;
+            
+            const emoji = errorCount > 0 || failCount > 0 ? '❌' : '✅';
+            
+            const comment = `
+            ## ${emoji} dbt CI Results
+            
+            **CI Schema:** \`${{ env.CI_SCHEMA_SUFFIX }}\`
+            
+            **Summary:**
+            - Total: ${totalModels}
+            - Success: ${successCount}
+            - Errors: ${errorCount}
+            - Failed Tests: ${failCount}
+            
+            ${errorCount > 0 || failCount > 0 ? '⚠️ Please check the workflow logs for details.' : '✅ All checks passed!'}
+            
+            <details>
+            <summary>View Details</summary>
+            
+            \`\`\`
+            ${runResults.results.slice(0, 10).map(r => 
+              `${r.status === 'success' ? '✅' : '❌'} ${r.unique_id}`
+            ).join('\n')}
+            ${totalModels > 10 ? `\n... and ${totalModels - 10} more` : ''}
+            \`\`\`
+            
+            </details>
+            `;
+            
+            github.rest.issues.createComment({
+              issue_number: context.issue.number,
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              body: comment
+            });
