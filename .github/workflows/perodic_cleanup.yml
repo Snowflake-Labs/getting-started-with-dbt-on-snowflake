@@ -11,11 +11,13 @@ on:
       dry_run:
         description: 'Dry run mode (just list schemas without deleting)'
         required: false
-        default: 'false'
+        default: 'true'
+        type: boolean
       retention_days:
         description: 'Delete schemas older than X days'
         required: false
         default: '7'
+        type: string
 
 jobs:
   cleanup-old-schemas:
@@ -41,7 +43,7 @@ jobs:
           SNOWFLAKE_DATABASE: ${{ secrets.SNOWFLAKE_DATABASE }}
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           GITHUB_REPOSITORY: ${{ github.repository }}
-          DRY_RUN: ${{ github.event.inputs.dry_run || 'false' }}
+          DRY_RUN: ${{ github.event.inputs.dry_run || 'true' }}
           RETENTION_DAYS: ${{ github.event.inputs.retention_days || '7' }}
         run: |
           python3 << 'PYTHON_SCRIPT'
@@ -52,13 +54,16 @@ jobs:
           import snowflake.connector
           
           # 設定
-          dry_run = os.environ.get('DRY_RUN', 'false').lower() == 'true'
+          dry_run = os.environ.get('DRY_RUN', 'true').lower() == 'true'
           retention_days = int(os.environ.get('RETENTION_DAYS', '7'))
           cutoff_date = datetime.now() - timedelta(days=retention_days)
           
-          print(f"🔍 Cleanup mode: {'DRY RUN' if dry_run else 'ACTIVE'}")
-          print(f"📅 Retention period: {retention_days} days")
-          print(f"📅 Cutoff date: {cutoff_date.strftime('%Y-%m-%d')}")
+          print("=" * 70)
+          print(f"🧹 Periodic CI Schema Cleanup")
+          print("=" * 70)
+          print(f"Mode: {'🔍 DRY RUN' if dry_run else '🔥 ACTIVE DELETE'}")
+          print(f"Retention period: {retention_days} days")
+          print(f"Cutoff date: {cutoff_date.strftime('%Y-%m-%d %H:%M:%S')}")
           print()
           
           # GitHub APIでオープン中のPRを取得
@@ -69,13 +74,19 @@ jobs:
               'Accept': 'application/vnd.github.v3+json'
           }
           
-          print("📋 Fetching open pull requests...")
-          response = requests.get(
-              f'https://api.github.com/repos/{repo}/pulls?state=open',
-              headers=headers
-          )
-          open_prs = {pr['number'] for pr in response.json()}
-          print(f"✅ Found {len(open_prs)} open PRs")
+          print("📋 Fetching open pull requests from GitHub...")
+          try:
+              response = requests.get(
+                  f'https://api.github.com/repos/{repo}/pulls?state=open',
+                  headers=headers
+              )
+              response.raise_for_status()
+              open_prs = {pr['number'] for pr in response.json()}
+              print(f"✅ Found {len(open_prs)} open PRs: {sorted(open_prs) if open_prs else 'none'}")
+          except Exception as e:
+              print(f"⚠️ Failed to fetch PRs from GitHub: {e}")
+              print("⚠️ Continuing with empty PR list (will only delete old schemas)")
+              open_prs = set()
           print()
           
           # Snowflake接続
@@ -91,25 +102,33 @@ jobs:
           
           try:
               cursor = conn.cursor()
+              database_name = os.environ['SNOWFLAKE_DATABASE']
               
-              # CI_PR_パターンのスキーマを検索
-              print("🔍 Searching for CI schemas...")
-              cursor.execute("SHOW SCHEMAS LIKE 'CI_PR_%'")
+              # CI スキーマを検索（CI_ または CI_PR_ パターン）
+              print(f"🔍 Searching for CI schemas in database: {database_name}")
+              cursor.execute(f"""
+                  SELECT SCHEMA_NAME, CREATED
+                  FROM {database_name}.INFORMATION_SCHEMA.SCHEMATA 
+                  WHERE SCHEMA_NAME LIKE 'CI%'
+                  ORDER BY CREATED DESC
+              """)
+              
               schemas = cursor.fetchall()
-              
-              print(f"📊 Found {len(schemas)} CI schemas")
+              print(f"📊 Found {len(schemas)} CI-related schemas")
               print()
+              
+              if not schemas:
+                  print("✨ No CI schemas found. Nothing to clean up.")
+                  return
               
               schemas_to_delete = []
               schemas_to_keep = []
               
-              for schema_info in schemas:
-                  schema_name = schema_info[1]  # スキーマ名
-                  created_on = schema_info[0]   # 作成日時
-                  
-                  # PR番号を抽出
-                  match = re.search(r'CI_PR_(\d+)', schema_name, re.IGNORECASE)
+              for schema_name, created_on in schemas:
+                  # PR番号を抽出（CI_15, CI_PR_15, ci_15, ci_pr_15 など様々なパターンに対応）
+                  match = re.search(r'CI[_]?(?:PR[_])?(\d+)', schema_name, re.IGNORECASE)
                   if not match:
+                      print(f"⚠️ Skipping schema (no PR number found): {schema_name}")
                       continue
                   
                   pr_number = int(match.group(1))
@@ -118,12 +137,18 @@ jobs:
                   should_delete = False
                   reason = ""
                   
-                  if pr_number not in open_prs:
+                  # PRがクローズされているかチェック
+                  if pr_number in open_prs:
+                      should_delete = False
+                      reason = f"PR #{pr_number} is still open"
+                  # 古いスキーマかチェック
+                  elif created_on and created_on < cutoff_date:
                       should_delete = True
-                      reason = "PR is closed or merged"
-                  elif created_on < cutoff_date:
+                      reason = f"Older than {retention_days} days (created: {created_on.strftime('%Y-%m-%d')})"
+                  # PRがクローズされている場合
+                  else:
                       should_delete = True
-                      reason = f"Schema is older than {retention_days} days"
+                      reason = f"PR #{pr_number} is closed/merged"
                   
                   if should_delete:
                       schemas_to_delete.append({
@@ -136,13 +161,15 @@ jobs:
                       schemas_to_keep.append({
                           'name': schema_name,
                           'pr': pr_number,
-                          'created': created_on
+                          'created': created_on,
+                          'reason': reason
                       })
               
               # レポート出力
-              print("=" * 60)
+              print("=" * 70)
               print(f"📊 CLEANUP SUMMARY")
-              print("=" * 60)
+              print("=" * 70)
+              print(f"Total schemas found: {len(schemas)}")
               print(f"Schemas to keep: {len(schemas_to_keep)}")
               print(f"Schemas to delete: {len(schemas_to_delete)}")
               print()
@@ -150,34 +177,51 @@ jobs:
               if schemas_to_keep:
                   print("✅ Schemas to KEEP:")
                   for schema in schemas_to_keep:
-                      print(f"  - {schema['name']} (PR #{schema['pr']}, created: {schema['created']})")
+                      created_str = schema['created'].strftime('%Y-%m-%d %H:%M') if schema['created'] else 'unknown'
+                      print(f"  - {schema['name']} (PR #{schema['pr']}, created: {created_str})")
+                      print(f"    → {schema['reason']}")
                   print()
               
               if schemas_to_delete:
-                  print("🗑️  Schemas to DELETE:")
+                  print(f"{'🔍 Schemas that WOULD BE deleted (DRY RUN):' if dry_run else '🗑️  Schemas to DELETE:'}")
                   for schema in schemas_to_delete:
-                      print(f"  - {schema['name']} (PR #{schema['pr']}, {schema['reason']})")
+                      created_str = schema['created'].strftime('%Y-%m-%d %H:%M') if schema['created'] else 'unknown'
+                      print(f"  - {schema['name']} (PR #{schema['pr']}, created: {created_str})")
+                      print(f"    → {schema['reason']}")
                   print()
                   
                   if not dry_run:
                       print("🔥 Deleting schemas...")
+                      deleted_count = 0
+                      failed_count = 0
+                      
                       for schema in schemas_to_delete:
                           try:
-                              cursor.execute(f"DROP SCHEMA IF EXISTS {schema['name']} CASCADE")
+                              drop_sql = f'DROP SCHEMA IF EXISTS "{database_name}"."{schema["name"]}" CASCADE'
+                              cursor.execute(drop_sql)
                               print(f"  ✅ Deleted: {schema['name']}")
+                              deleted_count += 1
                           except Exception as e:
                               print(f"  ❌ Failed to delete {schema['name']}: {str(e)}")
+                              failed_count += 1
+                      
                       print()
-                      print(f"✅ Cleanup completed! Deleted {len(schemas_to_delete)} schemas")
+                      print(f"✅ Cleanup completed!")
+                      print(f"   - Successfully deleted: {deleted_count}")
+                      if failed_count > 0:
+                          print(f"   - Failed: {failed_count}")
                   else:
-                      print("ℹ️  DRY RUN mode - no schemas were actually deleted")
+                      print("ℹ️  DRY RUN mode - No schemas were actually deleted")
+                      print("💡 To actually delete these schemas, run with dry_run=false")
               else:
                   print("✨ No schemas to delete")
               
-              print("=" * 60)
+              print("=" * 70)
           
           except Exception as e:
               print(f"❌ Error: {str(e)}")
+              import traceback
+              traceback.print_exc()
               raise
           
           finally:
@@ -190,7 +234,15 @@ jobs:
         run: |
           echo "## 🧹 CI Schema Cleanup Summary" >> $GITHUB_STEP_SUMMARY
           echo "" >> $GITHUB_STEP_SUMMARY
-          echo "**Mode:** ${{ github.event.inputs.dry_run == 'true' && '🔍 DRY RUN' || '🔥 ACTIVE' }}" >> $GITHUB_STEP_SUMMARY
+          echo "**Mode:** ${{ github.event.inputs.dry_run == 'true' && '🔍 DRY RUN' || '🔥 ACTIVE DELETE' }}" >> $GITHUB_STEP_SUMMARY
           echo "**Retention:** ${{ github.event.inputs.retention_days || '7' }} days" >> $GITHUB_STEP_SUMMARY
+          echo "**Trigger:** ${{ github.event_name == 'schedule' && '⏰ Scheduled' || '👤 Manual' }}" >> $GITHUB_STEP_SUMMARY
           echo "" >> $GITHUB_STEP_SUMMARY
           echo "Check the logs above for detailed results." >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "---" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "💡 **Tips:**" >> $GITHUB_STEP_SUMMARY
+          echo "- First run with dry_run=true to see what would be deleted" >> $GITHUB_STEP_SUMMARY
+          echo "- Adjust retention_days if needed (default: 7 days)" >> $GITHUB_STEP_SUMMARY
+          echo "- This workflow runs automatically every Monday at 3 AM UTC" >> $GITHUB_STEP_SUMMARY
