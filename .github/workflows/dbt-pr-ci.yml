@@ -63,9 +63,9 @@ jobs:
       
       - name: Create profiles.yml
         run: |
-          mkdir -p ${{ github.workspace }}
-          cat > ${{ github.workspace }}/profiles.yml <<EOF
-          default:
+          mkdir -p "$GITHUB_WORKSPACE"
+          cat > "$GITHUB_WORKSPACE/profiles.yml" <<EOF
+          tasty_bytes:
             target: ci
             outputs:
               ci:
