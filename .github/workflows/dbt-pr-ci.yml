@@ -4,8 +4,6 @@ name: dbt PR CI
 on:
   pull_request:
     branches: [main]  # mainブランチへのプルリクエストが作成/更新された時
-#  push:
-#    branches: [main]  # mainブランチに直接プッシュされた時
 #on:
 #  pull_request:
 #    types: [opened, reopened, synchronize, ready_for_review]
