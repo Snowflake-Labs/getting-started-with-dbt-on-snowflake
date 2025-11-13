@@ -32,10 +32,15 @@ jobs:
     if: github.event.pull_request.draft == false
     runs-on: ubuntu-latest
     
+    #env:
+    #  DBT_PROFILES_DIR: ${{ github.workspace }}
+    #  # PR番号からユニークなスキーマ名を生成
+    #  CI_SCHEMA_SUFFIX: ci_pr_${{ github.event.pull_request.number }}
     env:
       DBT_PROFILES_DIR: ${{ github.workspace }}
-      # PR番号からユニークなスキーマ名を生成
-      CI_SCHEMA_SUFFIX: ci_pr_${{ github.event.pull_request.number }}
+      DBT_PROJECT_DIR:  ${{ github.workspace }}/tasty_bytes_dbt_demo
+      CI_SCHEMA_SUFFIX: ci_${{ github.event.pull_request.number || github.run_id }}
+
     
     steps:
       - name: Checkout code
