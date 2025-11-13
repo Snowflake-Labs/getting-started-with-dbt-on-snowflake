@@ -86,6 +86,7 @@ jobs:
         run: dbt deps
       
       - name: Create CI schema
+        working-directory: ${{ github.workspace }}/tasty_bytes_dbt_demo
         run: |
           dbt run-operation create_schema_if_not_exists --args "{schema_name: ${{ env.CI_SCHEMA_SUFFIX }}}"
         continue-on-error: true
