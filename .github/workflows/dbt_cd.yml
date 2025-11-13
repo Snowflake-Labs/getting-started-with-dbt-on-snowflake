@@ -1,16 +1,12 @@
 # .github/workflows/dbt_ci_cd.yml
 # このファイルはGitHub Actionsのワークフロー定義ファイルです
 
-name: dbt CI/CD  # GitHub ActionsのUIに表示されるワークフロー名
+name: dbt CD  # GitHub ActionsのUIに表示されるワークフロー名
 
 on:
-  # cleanup_ci_schema.yml が完了した後に実行
-  workflow_run:
-    workflows: ["Cleanup CI Schema"]  # 実行を待つワークフロー名
-    types:
-      - completed  # 完了時（成功/失敗問わず）
-    branches:
-      - main  # mainブランチでの実行のみ
+  pull_request:
+    types: [closed]
+
 
 # 実行するジョブを定義（testとdeployの2つのジョブ）
 jobs:
