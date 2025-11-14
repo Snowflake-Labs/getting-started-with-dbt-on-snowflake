@@ -4,16 +4,6 @@ name: dbt PR CI
 on:
   pull_request:
     branches: [main]  # mainブランチへのプルリクエストが作成/更新された時
-#on:
-#  pull_request:
-#    types: [opened, reopened, synchronize, ready_for_review]
-#    paths:
-#      - 'models/**'
-#      - 'macros/**'
-#      - 'tests/**'
-#      - 'seeds/**'
-#      - 'dbt_project.yml'
-#      - 'packages.yml'
 
 # 同じPRで複数のCIが走った場合、古いものをキャンセル
 concurrency:
