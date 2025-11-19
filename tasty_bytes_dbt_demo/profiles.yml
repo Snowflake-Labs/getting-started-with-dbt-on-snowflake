@@ -1,5 +1,5 @@
 # profiles.yml
-# dbtがデータベースに接続するための設定ファイル--
+# dbtがデータベースに接続するための設定ファイル---
 tasty_bytes:  # dbt_project.ymlの「name」フィールドと一致させる必要がある
   target: dev  # デフォルトで使用するターゲット環境（ローカル開発時はdev）
   
