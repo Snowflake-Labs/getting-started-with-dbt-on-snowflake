@@ -1,4 +1,5 @@
-SELECT 
+-- add a change
+SELECT  
     cl.customer_id,
     cl.city,
     cl.country,
