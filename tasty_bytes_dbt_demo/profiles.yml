@@ -1,5 +1,5 @@
 tasty_bytes:
-  target: dev
+  target: dev # workspace will use this target to run any dbt command in this workspace
   outputs:
     dev:
       type: snowflake
