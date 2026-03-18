@@ -22,6 +22,9 @@ models:
     # +materialized: table
     staging:
       +materialized: view
-      +tags: ["staged_tag"]
     marts:
       +materialized: table
+      crm:
+        +tags: ["customer_tag"]
+        
+      
