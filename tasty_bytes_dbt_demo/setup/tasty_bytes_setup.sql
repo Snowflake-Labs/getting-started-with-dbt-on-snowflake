@@ -1,19 +1,17 @@
-USE ROLE accountadmin;
+-- USE ROLE accountadmin;
 
-CREATE OR REPLACE WAREHOUSE tasty_bytes_dbt_wh
-    WAREHOUSE_SIZE = 'small'
-    WAREHOUSE_TYPE = 'standard'
-    AUTO_SUSPEND = 60
-    AUTO_RESUME = TRUE
-    INITIALLY_SUSPENDED = TRUE
-    COMMENT = 'warehouse for tasty bytes dbt demo';
-
-USE WAREHOUSE tasty_bytes_dbt_wh;
-
-CREATE DATABASE IF NOT EXISTS tasty_bytes_dbt_db;
-CREATE OR REPLACE SCHEMA tasty_bytes_dbt_db.raw;
-CREATE OR REPLACE SCHEMA tasty_bytes_dbt_db.dev;
-CREATE OR REPLACE SCHEMA tasty_bytes_dbt_db.prod;
+-- CREATE OR REPLACE WAREHOUSE tasty_bytes_dbt_wh
+--     WAREHOUSE_SIZE = 'small'
+--     WAREHOUSE_TYPE = 'standard'
+--     AUTO_SUSPEND = 60
+--     AUTO_RESUME = TRUE
+--     INITIALLY_SUSPENDED = TRUE
+--     COMMENT = 'warehouse for tasty bytes dbt demo';
+-- USE ROLE DBT_TUTORIAL_NATHAN ;
+-- USE WAREHOUSE tasty_bytes_dbt_wh;
+-- CREATE OR REPLACE SCHEMA tasty_bytes_dbt_db.raw;
+-- CREATE OR REPLACE SCHEMA tasty_bytes_dbt_db.dev;
+-- CREATE OR REPLACE SCHEMA tasty_bytes_dbt_db.prod;
 
 
 ALTER SCHEMA tasty_bytes_dbt_db.dev SET LOG_LEVEL = 'INFO';
@@ -24,11 +22,13 @@ ALTER SCHEMA tasty_bytes_dbt_db.prod SET LOG_LEVEL = 'INFO';
 ALTER SCHEMA tasty_bytes_dbt_db.prod SET TRACE_LEVEL = 'ALWAYS';
 ALTER SCHEMA tasty_bytes_dbt_db.prod SET METRIC_LEVEL = 'ALL';
 
-CREATE OR REPLACE API INTEGRATION git_integration
-  API_PROVIDER = git_https_api
-  API_ALLOWED_PREFIXES = ('https://github.com/')
-  ENABLED = TRUE;
-
+-- CREATE OR REPLACE API INTEGRATION git_integration
+--   API_PROVIDER = git_https_api
+--   API_ALLOWED_PREFIXES = ('https://github.com/')
+--   ENABLED = TRUE;
+-- use role securityadmin ; 
+-- grant create stage on schema tasty_bytes_dbt_db.public to role dbt_tutorial_nathan;
+use role dbt_tutorial_nathan;
 CREATE OR REPLACE FILE FORMAT tasty_bytes_dbt_db.public.csv_ff 
 type = 'csv';
 
@@ -213,3 +213,5 @@ FROM @tasty_bytes_dbt_db.public.s3load/raw_pos/order_detail/;
 
 -- setup completion note
 SELECT 'tasty_bytes_dbt_db setup is now complete' AS note;
+
+
