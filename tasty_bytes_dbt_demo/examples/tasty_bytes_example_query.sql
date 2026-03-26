@@ -1,22 +1,11 @@
 -- What tables exist?
-SHOW TABLES IN SCHEMA tb_101.raw_pos;
+SHOW TABLES IN DATABASE tasty_bytes_dbt_db;
 
 -- What is the scale of data? 
-SELECT COUNT(*) FROM tb_101.raw_pos.order_header;
+SELECT COUNT(*) FROM TASTY_BYTES_DBT_DB.RAW.ORDER_HEADER;
 
 -- Understand a query that might be used in a mart
-SELECT 
-    cl.customer_id,
-    cl.city,
-    cl.country,
-    cl.first_name,
-    cl.last_name,
-    cl.phone_number,
-    cl.e_mail,
-    SUM(oh.order_total) AS total_sales,
-    ARRAY_AGG(DISTINCT oh.location_id) AS visited_location_ids_array
-FROM tb_101.raw.customer_loyalty cl
-JOIN tb_101.raw.order_header oh
-ON cl.customer_id = oh.customer_id
-GROUP BY cl.customer_id, cl.city, cl.country, cl.first_name,
-cl.last_name, cl.phone_number, cl.e_mail;
+Select top 1000 *
+from TASTY_BYTES_DBT_DB.DEV.CUSTOMER_LOYALTY_METRICS
+;
+
