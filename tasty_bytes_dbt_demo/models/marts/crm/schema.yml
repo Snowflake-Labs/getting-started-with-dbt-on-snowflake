@@ -1,0 +1,11 @@
+version: 2
+
+models:
+  - name: customers_metrics
+    description: "A customer-level mart that aggregates order history, including first/last order dates and lifetime value metrics."
+    columns:
+      - name: customer_id
+        description: "The unique identifier for the customer."
+        tests:
+          - unique
+          - not_null

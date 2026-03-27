@@ -3,8 +3,8 @@ with customers as (
         CUSTOMER_ID,
         FIRST_NAME,
         LAST_NAME
-    from TASTY_BYTES_DBT_DB.DEV.RAW_CUSTOMER_CUSTOMER_LOYALTY
-    -- from {{ ref('raw_customer_customer_loyalty') }}
+    -- from TASTY_BYTES_DBT_DB.DEV.RAW_CUSTOMER_CUSTOMER_LOYALTY
+    from {{ ref('raw_customer_customer_loyalty') }}
 ),
 orders as (
     select
@@ -12,8 +12,8 @@ orders as (
         CUSTOMER_ID,
         ORDER_TS,
         ORDER_TOTAL
-    from  TASTY_BYTES_DBT_DB.DEV.RAW_POS_ORDER_HEADER
-    -- from  {{ ref('raw_pos_order_header') }}
+    -- from  TASTY_BYTES_DBT_DB.DEV.RAW_POS_ORDER_HEADER
+    from  {{ ref('raw_pos_order_header') }}
 ),
 customer_orders as (
     select

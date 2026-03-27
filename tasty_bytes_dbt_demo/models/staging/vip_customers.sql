@@ -7,7 +7,7 @@ WITH vip_ids AS (
     FROM {{ ref("vip_ids") }}
 )
 , raw_customer_customer_loyalty AS (
-    SELECT *, 1/0 as une_erreur
+    SELECT *
     FROM {{ ref("raw_customer_customer_loyalty") }}
 )
 SELECT a.* 

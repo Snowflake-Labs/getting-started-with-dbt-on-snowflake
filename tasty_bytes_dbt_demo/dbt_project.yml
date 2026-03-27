@@ -19,12 +19,10 @@ clean-targets: [target, dbt_modules]
 ## Models
 models:
   tasty_bytes:
-    # +materialized: table
+    +materialized: table
     staging:
       +materialized: view
     marts:
       +materialized: table
       crm:
         +tags: ["customer_tag"]
-        
-      
