@@ -1,0 +1,35 @@
+name: dbt_CI
+
+on:
+  pull_request:
+    branches: [main]
+
+jobs:
+  ci_run:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0 # Important for comparing branches
+
+      - name: Install Snowflake CLI
+        uses: Snowflake-Labs/snowflake-cli-action@v1
+        with:
+          cli-version: "latest"
+
+      - name: Run dbt CI
+        env:
+          SNOWFLAKE_ACCOUNT: ${{ secrets.SNOWFLAKE_ACCOUNT }}
+          SNOWFLAKE_USER: ${{ secrets.SNOWFLAKE_USER }}
+          SNOWFLAKE_PRIVATE_KEY: ${{ secrets.SNOWFLAKE_PRIVATE_KEY }}
+          SNOWFLAKE_DATABASE: tasty_bytes_dbt_db
+          SNOWFLAKE_WAREHOUSE: ${{ secrets.SNOWFLAKE_WAREHOUSE }}
+          SNOWFLAKE_ROLE: ${{ secrets.SNOWFLAKE_ROLE }}
+        run: |
+          # 1. Initialize dbt deps
+          snow dbt deps
+          
+          # 2. Run and Test only modified models + downstream dependencies
+          # We use 'main' as the state comparison point
+          snow dbt deploy --target dev --select "state:modified+" --state .
