@@ -14,7 +14,7 @@ jobs:
           fetch-depth: 0 # Important for comparing branches
 
       - name: Install Snowflake CLI
-        uses: Snowflake-Labs/snowflake-cli-action@v1
+        uses: Snowflake-Labs/snowflake-cli-action@v1.1.0
         with:
           cli-version: "latest"
 
