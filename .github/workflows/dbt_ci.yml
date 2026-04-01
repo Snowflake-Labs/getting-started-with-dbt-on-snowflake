@@ -32,4 +32,4 @@ jobs:
           
           # 2. Run and Test only modified models + downstream dependencies
           # We use 'main' as the state comparison point
-          snow dbt deploy --target dev --select "state:modified+" --state .
+          snow dbt deploy --target dev
