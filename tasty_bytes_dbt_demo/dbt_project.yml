@@ -16,8 +16,18 @@ snapshot-paths: [snapshots]
 target-path: target
 clean-targets: [target, dbt_modules]
 
+# 1. The Trigger: Applies tags to all models built during the run
+on-run-end:
+  - "{{ snowflake_utils.apply_meta_as_tags(results) }}"
+
+
 ## Models
 models:
+  ## created in the schema '<your_schema>_elementary'
+  ## for details, see docs: <https://docs.elementary-data.com/>
+  elementary:
+    +schema: "elementary"
+
   tasty_bytes:
     +materialized: table
     staging:
@@ -26,3 +36,7 @@ models:
       +materialized: table
       crm:
         +tags: ["customer_tag"]
+        +meta:
+          database_tags:
+            # Use the full path to avoid "Object not found" errors
+            cost_center: 'crm_cost_center'
