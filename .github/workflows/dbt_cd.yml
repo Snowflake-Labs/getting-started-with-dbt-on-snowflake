@@ -25,4 +25,4 @@ jobs:
         run: |
           snow dbt deps
           # Deploying to production target
-          snow dbt deploy --target prod --select "state:modified+" --state .
+          snow dbt deploy --target prod
