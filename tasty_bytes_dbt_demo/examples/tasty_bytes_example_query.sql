@@ -35,6 +35,8 @@ CREATE OR REPLACE NETWORK RULE dbt_network_rule
     'codeload.github.com'
     );
 
+/***  Pour la gestion de librairie  ***/
+
 -- Create EXTERNAL ACCESS INTEGRATION for dbt access to external dbt package locations
 
 CREATE OR REPLACE EXTERNAL ACCESS INTEGRATION dbt_ext_access
@@ -46,6 +48,9 @@ GRANT USAGE ON DATABASE TASTY_BYTES_DBT_DB TO ROLE DEMO_ROLE;
 -- Elementary needs to create its own schema (usually named 'ELEMENTARY')
 GRANT CREATE SCHEMA ON DATABASE TASTY_BYTES_DBT_DB TO ROLE DEMO_ROLE;
 
+
+
+/***  Pour la gestion de tag snowflake  ***/
 
 CREATE TAG TASTY_BYTES_DBT_DB.dev.cost_center;
 
