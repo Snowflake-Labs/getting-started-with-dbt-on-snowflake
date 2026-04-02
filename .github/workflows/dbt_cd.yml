@@ -40,6 +40,21 @@ jobs:
           cd tasty_bytes_dbt_demo
           dbt deps
 
+      - name: Ensure Stage Exists
+        run: |
+          snow sql -q "CREATE SCHEMA IF NOT EXISTS TASTY_BYTES_DBT_DB.OPERATIONS; CREATE STAGE IF NOT EXISTS TASTY_BYTES_DBT_DB.OPERATIONS.DBT_ARTIFACTS DIRECTORY = (ENABLE = TRUE);"
+          
+      - name: Archive Production Manifest
+        run: |
+          cd tasty_bytes_dbt_demo
+          
+          # 1. Run compile locally. 
+          dbt compile --target prod
+
+          # 2. Use the Snowflake CLI to upload the LOCAL file to the Stage
+          # The file is in tasty_bytes_dbt_demo/target/manifest.json
+          snow stage copy target/manifest.json @TASTY_BYTES_DBT_DB.OPERATIONS.DBT_ARTIFACTS --overwrite
+
       - name: Deploy Project to Snowflake
         run: |
           snow dbt deploy tasty_bytes \
@@ -51,17 +66,3 @@ jobs:
         # In CD, we run the full project to ensure Production is 100% synced
         run: |
           snow dbt execute tasty_bytes build --empty
-
-      - name: Ensure Stage Exists
-        run: |
-          snow sql -q "CREATE SCHEMA IF NOT EXISTS TASTY_BYTES_DBT_DB.OPERATIONS; CREATE STAGE IF NOT EXISTS TASTY_BYTES_DBT_DB.OPERATIONS.DBT_ARTIFACTS DIRECTORY = (ENABLE = TRUE);"
-          
-      - name: Archive Production Manifest
-        run: |
-          # 1. Trigger the compilation inside Snowflake
-          # This ensures the manifest.json is generated inside the @tasty_bytes stage
-          snow dbt execute tasty_bytes compile
-
-          # 2. Copy the file from the Project Stage to the Artifact Stage
-          # Note: 'tasty_bytes' is the project name, so the stage is @tasty_bytes
-          snow sql -q "COPY FILES INTO @TASTY_BYTES_DBT_DB.OPERATIONS.DBT_ARTIFACTS FROM @tasty_bytes/target/manifest.json"
