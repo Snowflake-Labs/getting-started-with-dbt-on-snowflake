@@ -40,24 +40,9 @@ jobs:
           cd tasty_bytes_dbt_demo
           dbt deps
 
-      - name: Ensure Stage Exists
+      - name: Ensure Artifact Stage Exists
         run: |
           snow sql -q "CREATE SCHEMA IF NOT EXISTS TASTY_BYTES_DBT_DB.OPERATIONS; CREATE STAGE IF NOT EXISTS TASTY_BYTES_DBT_DB.OPERATIONS.DBT_ARTIFACTS DIRECTORY = (ENABLE = TRUE);"
-          
-      - name: Archive Production Manifest
-        # These variables must match what is in your tasty_bytes_dbt_demo/profiles.yml
-        env:
-          DBT_SNOWFLAKE_ACCOUNT: ${{ secrets.SNOWFLAKE_ACCOUNT }}
-          DBT_SNOWFLAKE_USER: ${{ secrets.SNOWFLAKE_USER }}
-          DBT_SNOWFLAKE_PRIVATE_KEY: ${{ secrets.SNOWFLAKE_PRIVATE_KEY }}
-          DBT_SNOWFLAKE_ROLE: ${{ secrets.SNOWFLAKE_ROLE }}
-          DBT_SNOWFLAKE_WAREHOUSE: ${{ secrets.SNOWFLAKE_WAREHOUSE }}
-        run: |
-          cd tasty_bytes_dbt_demo
-          # Generate manifest locally using the secrets above
-          dbt compile
-          # Upload via Snowflake CLI (which uses the ~/.snowflake/config.toml)
-          snow stage copy target/manifest.json @TASTY_BYTES_DBT_DB.OPERATIONS.DBT_ARTIFACTS --overwrite
 
       - name: Deploy Project to Snowflake
         run: |
@@ -66,7 +51,21 @@ jobs:
             --profiles-dir tasty_bytes_dbt_demo \
             --force
 
-      - name: Full Production Build
-        # In CD, we run the full project to ensure Production is 100% synced
+      - name: Full Production Build (Empty Validation)
+        # This validates the SQL logic in Snowflake before we archive the state
         run: |
           snow dbt execute tasty_bytes build --empty
+
+      - name: Archive Production Manifest
+        env:
+          # We provide a dummy password so dbt parse doesn't complain about empty credentials
+          # dbt parse only looks at the code; it won't actually try to use this password.
+          DBT_SNOWFLAKE_PASSWORD: "dummy"
+        run: |
+          cd tasty_bytes_dbt_demo
+          
+          # 1. Generate the manifest.json locally on the runner
+          dbt parse
+          
+          # 2. Upload the manifest from the runner's target folder to the Snowflake stage
+          snow stage copy target/manifest.json @TASTY_BYTES_DBT_DB.OPERATIONS.DBT_ARTIFACTS --overwrite
