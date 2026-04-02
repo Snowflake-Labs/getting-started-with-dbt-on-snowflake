@@ -45,14 +45,18 @@ jobs:
           snow sql -q "CREATE SCHEMA IF NOT EXISTS TASTY_BYTES_DBT_DB.OPERATIONS; CREATE STAGE IF NOT EXISTS TASTY_BYTES_DBT_DB.OPERATIONS.DBT_ARTIFACTS DIRECTORY = (ENABLE = TRUE);"
           
       - name: Archive Production Manifest
+        # These variables must match what is in your tasty_bytes_dbt_demo/profiles.yml
+        env:
+          DBT_SNOWFLAKE_ACCOUNT: ${{ secrets.SNOWFLAKE_ACCOUNT }}
+          DBT_SNOWFLAKE_USER: ${{ secrets.SNOWFLAKE_USER }}
+          DBT_SNOWFLAKE_PRIVATE_KEY: ${{ secrets.SNOWFLAKE_PRIVATE_KEY }}
+          DBT_SNOWFLAKE_ROLE: ${{ secrets.SNOWFLAKE_ROLE }}
+          DBT_SNOWFLAKE_WAREHOUSE: ${{ secrets.SNOWFLAKE_WAREHOUSE }}
         run: |
           cd tasty_bytes_dbt_demo
-          
-          # 1. Run compile locally. 
+          # Generate manifest locally using the secrets above
           dbt compile --target prod
-
-          # 2. Use the Snowflake CLI to upload the LOCAL file to the Stage
-          # The file is in tasty_bytes_dbt_demo/target/manifest.json
+          # Upload via Snowflake CLI (which uses the ~/.snowflake/config.toml)
           snow stage copy target/manifest.json @TASTY_BYTES_DBT_DB.OPERATIONS.DBT_ARTIFACTS --overwrite
 
       - name: Deploy Project to Snowflake
