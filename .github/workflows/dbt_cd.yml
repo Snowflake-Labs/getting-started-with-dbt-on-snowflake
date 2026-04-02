@@ -50,7 +50,7 @@ jobs:
       - name: Full Production Build
         # In CD, we run the full project to ensure Production is 100% synced
         run: |
-          snow dbt execute tasty_bytes build --connection "default"
+          snow dbt execute tasty_bytes build
 
       - name: Archive Production Manifest
         run: |
