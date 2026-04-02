@@ -7,29 +7,47 @@ on:
 jobs:
   ci_run:
     runs-on: ubuntu-latest
+
     steps:
       - name: Checkout Code
         uses: actions/checkout@v4
-        with:
-          fetch-depth: 0 # Important for comparing branches
 
       - name: Install Snowflake CLI
-        uses: Snowflake-Labs/snowflake-cli-action@v1.1.0
+        uses: snowflakedb/snowflake-cli-action@v1.5
         with:
           cli-version: "latest"
 
-      - name: Run dbt CI
-        env:
-          SNOWFLAKE_ACCOUNT: ${{ secrets.SNOWFLAKE_ACCOUNT }}
-          SNOWFLAKE_USER: ${{ secrets.SNOWFLAKE_USER }}
-          SNOWFLAKE_PRIVATE_KEY: ${{ secrets.SNOWFLAKE_PRIVATE_KEY }}
-          SNOWFLAKE_DATABASE: tasty_bytes_dbt_db
-          SNOWFLAKE_WAREHOUSE: ${{ secrets.SNOWFLAKE_WAREHOUSE }}
-          SNOWFLAKE_ROLE: ${{ secrets.SNOWFLAKE_ROLE }}
+      - name: Create Snowflake Config
         run: |
-          # 1. Initialize dbt deps
-          snow dbt deps
-          
-          # 2. Run and Test only modified models + downstream dependencies
-          # We use 'main' as the state comparison point
-          snow dbt deploy --target dev --select "state:modified+" --state .
+          mkdir -p ~/.snowflake
+          cat <<EOF > ~/.snowflake/config.toml
+          [connections.default]
+          account = "${{ secrets.SNOWFLAKE_ACCOUNT }}"
+          user = "${{ secrets.SNOWFLAKE_USER }}"
+          authenticator = "SNOWFLAKE_JWT"
+          private_key_raw = """${{ secrets.SNOWFLAKE_PRIVATE_KEY }}"""
+          role = "${{ secrets.SNOWFLAKE_ROLE }}"
+          warehouse = "${{ secrets.SNOWFLAKE_WAREHOUSE }}"
+          database = "tasty_bytes_dbt_db"
+          schema = "PUBLIC"
+          EOF
+          chmod 0600 ~/.snowflake/config.toml
+
+      - name: Install dbt
+        run: pip install dbt-snowflake
+
+      - name: Install dbt Dependencies
+        run: |
+          cd tasty_bytes_dbt_demo
+          dbt deps
+
+      - name: Deploy Project
+        run: |
+          snow dbt deploy tasty_bytes \
+            --source tasty_bytes_dbt_demo \
+            --profiles-dir tasty_bytes_dbt_demo \
+            --force
+
+      - name: Execute Slim CI (Build Modified)
+        run: |
+          snow dbt execute tasty_bytes build
