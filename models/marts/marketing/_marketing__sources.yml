@@ -1,0 +1,12 @@
+version: 2
+sources:
+  - name: dev_sweatran
+    database: DEV_SWEATRAN
+    schema: DEV_DBT_MARTS
+    tables:
+      - name: DIM_BRAZE_CAMPAIGN_TAGS
+        columns:
+          - name: CAMPAIGN_API_ID
+            data_type: UUID
+          - name: TAGS
+            data_type: VARCHAR

@@ -1,0 +1,11 @@
+version: 2
+
+sources:
+  - name: social
+    database: DEV_SWEATRAN
+    schema: RAW_SOCIAL
+    tables:
+      - name: posts
+      - name: comments
+      - name: follows
+      - name: likes

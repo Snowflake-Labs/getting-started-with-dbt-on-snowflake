@@ -1,0 +1,10 @@
+version: 2
+
+sources:
+  - name: nutrition
+    database: DEV_SWEATRAN
+    schema: RAW_NUTRITION
+    tables:
+      - name: food_logs
+      - name: meals
+      - name: food_items

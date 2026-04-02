@@ -1,0 +1,514 @@
+version: 2
+models:
+  - name: stg_braze__campaign_changelogs
+    columns:
+      - name: SOURCE_ID
+        data_type: VARCHAR
+      - name: CAMPAIGN_API_ID
+        data_type: VARCHAR
+      - name: NAME
+        data_type: VARCHAR
+      - name: CONVERSION_BEHAVIORS
+        data_type: ARRAY
+      - name: ACTIONS
+        data_type: ARRAY
+      - name: EVENT_TIME_UTC
+        data_type: TIMESTAMP_NTZ
+      - name: APP_GROUP_ID
+        data_type: VARCHAR
+  - name: stg_braze__canvas_changelogs
+    columns:
+      - name: SOURCE_ID
+        data_type: VARCHAR
+      - name: CAMPAIGN_API_ID
+        data_type: VARCHAR
+      - name: NAME
+        data_type: VARCHAR
+      - name: CONVERSION_BEHAVIORS
+        data_type: ARRAY
+      - name: VARIATIONS
+        data_type: ARRAY
+      - name: EVENT_TIME_UTC
+        data_type: TIMESTAMP_NTZ
+      - name: APP_GROUP_ID
+        data_type: VARCHAR
+  - name: stg_braze__canvas_step_snapshots
+    columns:
+      - name: SOURCE_ID
+        data_type: VARCHAR
+      - name: CANVAS_STEP_API_ID
+        data_type: VARCHAR
+      - name: STEP_NAME
+        data_type: VARCHAR
+      - name: EVENT_TIME_UTC
+        data_type: TIMESTAMP_NTZ
+      - name: APP_GROUP_ID
+        data_type: VARCHAR
+  - name: stg_braze__email_send
+    columns:
+      - name: EVENT_ID
+        data_type: VARCHAR
+      - name: USER_ID
+        data_type: VARCHAR
+      - name: CONTACT_ID
+        data_type: VARCHAR
+      - name: EMAIL_ADDRESS
+        data_type: VARCHAR
+      - name: COUNTRY
+        data_type: VARCHAR
+      - name: CAMPAIGN_ID
+        data_type: VARCHAR
+      - name: CAMPAIGN_API_ID
+        data_type: VARCHAR
+      - name: CANVAS_ID
+        data_type: VARCHAR
+      - name: VARIATION_API_ID
+        data_type: VARCHAR
+      - name: CANVAS_STEP_MESSAGE_VARIATION_API_ID
+        data_type: VARCHAR
+      - name: CANVAS_STEP_API_ID
+        data_type: VARCHAR
+      - name: SEND_ID
+        data_type: VARCHAR
+      - name: DISPATCH_ID
+        data_type: VARCHAR
+      - name: EVENT_TIME_UTC
+        data_type: TIMESTAMP_NTZ
+      - name: EVENT_DATE_UTC
+        data_type: DATE
+      - name: LOAD_TIMESTAMP
+        data_type: TIMESTAMP_LTZ
+  - name: stg_braze__email_open
+    columns:
+      - name: EVENT_ID
+        data_type: VARCHAR
+      - name: USER_ID
+        data_type: VARCHAR
+      - name: CONTACT_ID
+        data_type: VARCHAR
+      - name: EMAIL_ADDRESS
+        data_type: VARCHAR
+      - name: COUNTRY
+        data_type: VARCHAR
+      - name: CAMPAIGN_ID
+        data_type: VARCHAR
+      - name: CAMPAIGN_API_ID
+        data_type: VARCHAR
+      - name: CANVAS_ID
+        data_type: VARCHAR
+      - name: VARIATION_API_ID
+        data_type: VARCHAR
+      - name: CANVAS_STEP_MESSAGE_VARIATION_API_ID
+        data_type: VARCHAR
+      - name: CANVAS_STEP_API_ID
+        data_type: VARCHAR
+      - name: SEND_ID
+        data_type: VARCHAR
+      - name: DISPATCH_ID
+        data_type: VARCHAR
+      - name: MACHINE_OPEN
+        data_type: VARCHAR
+      - name: EVENT_TIME_UTC
+        data_type: TIMESTAMP_NTZ
+      - name: EVENT_DATE_UTC
+        data_type: DATE
+      - name: LOAD_TIMESTAMP
+        data_type: TIMESTAMP_LTZ
+  - name: stg_braze__email_click
+    columns:
+      - name: EVENT_ID
+        data_type: VARCHAR
+      - name: USER_ID
+        data_type: VARCHAR
+      - name: CONTACT_ID
+        data_type: VARCHAR
+      - name: EMAIL_ADDRESS
+        data_type: VARCHAR
+      - name: COUNTRY
+        data_type: VARCHAR
+      - name: CAMPAIGN_ID
+        data_type: VARCHAR
+      - name: CAMPAIGN_API_ID
+        data_type: VARCHAR
+      - name: CANVAS_ID
+        data_type: VARCHAR
+      - name: VARIATION_API_ID
+        data_type: VARCHAR
+      - name: CANVAS_STEP_MESSAGE_VARIATION_API_ID
+        data_type: VARCHAR
+      - name: CANVAS_STEP_API_ID
+        data_type: VARCHAR
+      - name: SEND_ID
+        data_type: VARCHAR
+      - name: DISPATCH_ID
+        data_type: VARCHAR
+      - name: URL
+        data_type: VARCHAR
+      - name: EVENT_TIME_UTC
+        data_type: TIMESTAMP_NTZ
+      - name: EVENT_DATE_UTC
+        data_type: DATE
+      - name: LOAD_TIMESTAMP
+        data_type: TIMESTAMP_LTZ
+  - name: stg_braze__contentcard_send
+    columns:
+      - name: EVENT_ID
+        data_type: VARCHAR
+      - name: USER_ID
+        data_type: VARCHAR
+      - name: CONTACT_ID
+        data_type: VARCHAR
+      - name: EMAIL_ADDRESS
+        data_type: VARCHAR
+      - name: COUNTRY
+        data_type: VARCHAR
+      - name: CAMPAIGN_ID
+        data_type: VARCHAR
+      - name: CANVAS_ID
+        data_type: VARCHAR
+      - name: VARIATION_API_ID
+        data_type: VARCHAR
+      - name: CANVAS_STEP_MESSAGE_VARIATION_API_ID
+        data_type: VARCHAR
+      - name: CANVAS_STEP_API_ID
+        data_type: VARCHAR
+      - name: CONTENT_CARD_ID
+        data_type: VARCHAR
+      - name: CHANNEL
+        data_type: VARCHAR
+      - name: EVENT_TYPE
+        data_type: VARCHAR
+      - name: EVENT_TIME_UTC
+        data_type: TIMESTAMP_NTZ
+      - name: EVENT_DATE_UTC
+        data_type: DATE
+      - name: LOAD_TIMESTAMP
+        data_type: TIMESTAMP_LTZ
+  - name: stg_braze__contentcard_impression
+    columns:
+      - name: EVENT_ID
+        data_type: VARCHAR
+      - name: USER_ID
+        data_type: VARCHAR
+      - name: CONTACT_ID
+        data_type: VARCHAR
+      - name: EMAIL_ADDRESS
+        data_type: VARCHAR
+      - name: COUNTRY
+        data_type: VARCHAR
+      - name: CAMPAIGN_ID
+        data_type: VARCHAR
+      - name: CANVAS_ID
+        data_type: VARCHAR
+      - name: VARIATION_API_ID
+        data_type: VARCHAR
+      - name: CANVAS_STEP_MESSAGE_VARIATION_API_ID
+        data_type: VARCHAR
+      - name: CANVAS_STEP_API_ID
+        data_type: VARCHAR
+      - name: CONTENT_CARD_ID
+        data_type: VARCHAR
+      - name: CHANNEL
+        data_type: VARCHAR
+      - name: EVENT_TYPE
+        data_type: VARCHAR
+      - name: EVENT_TIME_UTC
+        data_type: TIMESTAMP_NTZ
+      - name: EVENT_DATE_UTC
+        data_type: DATE
+      - name: LOAD_TIMESTAMP
+        data_type: TIMESTAMP_LTZ
+  - name: stg_braze__contentcard_click
+    columns:
+      - name: EVENT_ID
+        data_type: VARCHAR
+      - name: USER_ID
+        data_type: VARCHAR
+      - name: CONTACT_ID
+        data_type: VARCHAR
+      - name: EMAIL_ADDRESS
+        data_type: VARCHAR
+      - name: COUNTRY
+        data_type: VARCHAR
+      - name: CAMPAIGN_ID
+        data_type: VARCHAR
+      - name: CANVAS_ID
+        data_type: VARCHAR
+      - name: VARIATION_API_ID
+        data_type: VARCHAR
+      - name: CANVAS_STEP_MESSAGE_VARIATION_API_ID
+        data_type: VARCHAR
+      - name: CANVAS_STEP_API_ID
+        data_type: VARCHAR
+      - name: CONTENT_CARD_ID
+        data_type: VARCHAR
+      - name: CHANNEL
+        data_type: VARCHAR
+      - name: EVENT_TYPE
+        data_type: VARCHAR
+      - name: EVENT_TIME_UTC
+        data_type: TIMESTAMP_NTZ
+      - name: EVENT_DATE_UTC
+        data_type: DATE
+      - name: LOAD_TIMESTAMP
+        data_type: TIMESTAMP_LTZ
+  - name: stg_braze__pushnotification_send
+    columns:
+      - name: EVENT_ID
+        data_type: VARCHAR
+      - name: USER_ID
+        data_type: VARCHAR
+      - name: CONTACT_ID
+        data_type: VARCHAR
+      - name: EMAIL_ADDRESS
+        data_type: VARCHAR
+      - name: COUNTRY
+        data_type: VARCHAR
+      - name: CAMPAIGN_ID
+        data_type: VARCHAR
+      - name: CANVAS_ID
+        data_type: VARCHAR
+      - name: VARIATION_API_ID
+        data_type: VARCHAR
+      - name: CANVAS_STEP_MESSAGE_VARIATION_API_ID
+        data_type: VARCHAR
+      - name: CANVAS_STEP_API_ID
+        data_type: VARCHAR
+      - name: CONTENT_CARD_ID
+        data_type: VARCHAR
+      - name: CHANNEL
+        data_type: VARCHAR
+      - name: EVENT_TYPE
+        data_type: VARCHAR
+      - name: EVENT_TIME_UTC
+        data_type: TIMESTAMP_NTZ
+      - name: EVENT_DATE_UTC
+        data_type: DATE
+      - name: LOAD_TIMESTAMP
+        data_type: TIMESTAMP_LTZ
+  - name: stg_braze__pushnotification_influencedopen
+    columns:
+      - name: EVENT_ID
+        data_type: VARCHAR
+      - name: USER_ID
+        data_type: VARCHAR
+      - name: CONTACT_ID
+        data_type: VARCHAR
+      - name: EMAIL_ADDRESS
+        data_type: VARCHAR
+      - name: COUNTRY
+        data_type: VARCHAR
+      - name: CAMPAIGN_ID
+        data_type: VARCHAR
+      - name: CANVAS_ID
+        data_type: VARCHAR
+      - name: VARIATION_API_ID
+        data_type: VARCHAR
+      - name: CANVAS_STEP_MESSAGE_VARIATION_API_ID
+        data_type: VARCHAR
+      - name: CANVAS_STEP_API_ID
+        data_type: VARCHAR
+      - name: CONTENT_CARD_ID
+        data_type: VARCHAR
+      - name: CHANNEL
+        data_type: VARCHAR
+      - name: EVENT_TYPE
+        data_type: VARCHAR
+      - name: EVENT_TIME_UTC
+        data_type: TIMESTAMP_NTZ
+      - name: EVENT_DATE_UTC
+        data_type: DATE
+      - name: LOAD_TIMESTAMP
+        data_type: TIMESTAMP_LTZ
+  - name: stg_braze__pushnotification_abort
+    columns:
+      - name: EVENT_ID
+        data_type: VARCHAR
+      - name: USER_ID
+        data_type: VARCHAR
+      - name: CONTACT_ID
+        data_type: VARCHAR
+      - name: EMAIL_ADDRESS
+        data_type: VARCHAR
+      - name: COUNTRY
+        data_type: VARCHAR
+      - name: CAMPAIGN_ID
+        data_type: VARCHAR
+      - name: CANVAS_ID
+        data_type: VARCHAR
+      - name: VARIATION_API_ID
+        data_type: VARCHAR
+      - name: CANVAS_STEP_MESSAGE_VARIATION_API_ID
+        data_type: VARCHAR
+      - name: CANVAS_STEP_API_ID
+        data_type: VARCHAR
+      - name: CONTENT_CARD_ID
+        data_type: VARCHAR
+      - name: CHANNEL
+        data_type: VARCHAR
+      - name: EVENT_TYPE
+        data_type: VARCHAR
+      - name: EVENT_TIME_UTC
+        data_type: TIMESTAMP_NTZ
+      - name: EVENT_DATE_UTC
+        data_type: DATE
+      - name: LOAD_TIMESTAMP
+        data_type: TIMESTAMP_LTZ
+  - name: stg_braze__pushnotification_bounce
+    columns:
+      - name: EVENT_ID
+        data_type: VARCHAR
+      - name: USER_ID
+        data_type: VARCHAR
+      - name: CONTACT_ID
+        data_type: VARCHAR
+      - name: EMAIL_ADDRESS
+        data_type: VARCHAR
+      - name: COUNTRY
+        data_type: VARCHAR
+      - name: CAMPAIGN_ID
+        data_type: VARCHAR
+      - name: CANVAS_ID
+        data_type: VARCHAR
+      - name: VARIATION_API_ID
+        data_type: VARCHAR
+      - name: CANVAS_STEP_MESSAGE_VARIATION_API_ID
+        data_type: VARCHAR
+      - name: CANVAS_STEP_API_ID
+        data_type: VARCHAR
+      - name: CONTENT_CARD_ID
+        data_type: VARCHAR
+      - name: CHANNEL
+        data_type: VARCHAR
+      - name: EVENT_TYPE
+        data_type: VARCHAR
+      - name: EVENT_TIME_UTC
+        data_type: TIMESTAMP_NTZ
+      - name: EVENT_DATE_UTC
+        data_type: DATE
+      - name: LOAD_TIMESTAMP
+        data_type: TIMESTAMP_LTZ
+  - name: stg_braze__pushnotification_retry
+    columns:
+      - name: EVENT_ID
+        data_type: VARCHAR
+      - name: USER_ID
+        data_type: VARCHAR
+      - name: CONTACT_ID
+        data_type: VARCHAR
+      - name: EMAIL_ADDRESS
+        data_type: VARCHAR
+      - name: COUNTRY
+        data_type: VARCHAR
+      - name: CAMPAIGN_ID
+        data_type: VARCHAR
+      - name: CANVAS_ID
+        data_type: VARCHAR
+      - name: VARIATION_API_ID
+        data_type: VARCHAR
+      - name: CANVAS_STEP_MESSAGE_VARIATION_API_ID
+        data_type: VARCHAR
+      - name: CANVAS_STEP_API_ID
+        data_type: VARCHAR
+      - name: CONTENT_CARD_ID
+        data_type: VARCHAR
+      - name: CHANNEL
+        data_type: VARCHAR
+      - name: EVENT_TYPE
+        data_type: VARCHAR
+      - name: EVENT_TIME_UTC
+        data_type: TIMESTAMP_NTZ
+      - name: EVENT_DATE_UTC
+        data_type: DATE
+      - name: LOAD_TIMESTAMP
+        data_type: TIMESTAMP_LTZ
+  - name: stg_braze__campaign_conversion
+    columns:
+      - name: EVENT_ID
+        data_type: VARCHAR
+      - name: USER_ID
+        data_type: VARCHAR
+      - name: CONTACT_ID
+        data_type: VARCHAR
+      - name: CAMPAIGN_ID
+        data_type: VARCHAR
+      - name: VARIATION_API_ID
+        data_type: VARCHAR
+      - name: CANVAS_ID
+        data_type: VARCHAR
+      - name: CANVAS_STEP_API_ID
+        data_type: VARCHAR
+      - name: CONVERSION_BEHAVIOR_INDEX
+        data_type: NUMBER
+      - name: CONVERSION
+        data_type: NUMBER
+      - name: EVENT_TIME_UTC
+        data_type: TIMESTAMP_NTZ
+      - name: EVENT_DATE_UTC
+        data_type: DATE
+      - name: SOURCE_TYPE
+        data_type: VARCHAR
+      - name: LOAD_TIMESTAMP
+        data_type: TIMESTAMP_LTZ
+  - name: stg_braze__canvas_conversion
+    columns:
+      - name: EVENT_ID
+        data_type: VARCHAR
+      - name: USER_ID
+        data_type: VARCHAR
+      - name: CONTACT_ID
+        data_type: VARCHAR
+      - name: CAMPAIGN_ID
+        data_type: VARCHAR
+      - name: VARIATION_API_ID
+        data_type: VARCHAR
+      - name: CANVAS_ID
+        data_type: VARCHAR
+      - name: CANVAS_STEP_API_ID
+        data_type: VARCHAR
+      - name: CONVERSION_BEHAVIOR_INDEX
+        data_type: NUMBER
+      - name: CONVERSION
+        data_type: NUMBER
+      - name: EVENT_TIME_UTC
+        data_type: TIMESTAMP_NTZ
+      - name: EVENT_DATE_UTC
+        data_type: DATE
+      - name: SOURCE_TYPE
+        data_type: VARCHAR
+      - name: LOAD_TIMESTAMP
+        data_type: TIMESTAMP_LTZ
+  - name: stg_braze__email_delivery
+    columns:
+      - name: EVENT_ID
+        data_type: VARCHAR
+      - name: USER_ID
+        data_type: VARCHAR
+      - name: CONTACT_ID
+        data_type: VARCHAR
+      - name: EMAIL_ADDRESS
+        data_type: VARCHAR
+      - name: COUNTRY
+        data_type: VARCHAR
+      - name: CAMPAIGN_ID
+        data_type: VARCHAR
+      - name: CAMPAIGN_API_ID
+        data_type: VARCHAR
+      - name: CANVAS_ID
+        data_type: VARCHAR
+      - name: VARIATION_API_ID
+        data_type: VARCHAR
+      - name: CANVAS_STEP_MESSAGE_VARIATION_API_ID
+        data_type: VARCHAR
+      - name: CANVAS_STEP_API_ID
+        data_type: VARCHAR
+      - name: SEND_ID
+        data_type: VARCHAR
+      - name: DISPATCH_ID
+        data_type: VARCHAR
+      - name: EVENT_TIME_UTC
+        data_type: TIMESTAMP_NTZ
+      - name: EVENT_DATE_UTC
+        data_type: DATE
+      - name: LOAD_TIMESTAMP
+        data_type: TIMESTAMP_LTZ

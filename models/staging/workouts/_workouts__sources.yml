@@ -1,0 +1,10 @@
+version: 2
+
+sources:
+  - name: workouts
+    database: DEV_SWEATRAN
+    schema: RAW_WORKOUTS
+    tables:
+      - name: sessions
+      - name: exercises
+      - name: programs

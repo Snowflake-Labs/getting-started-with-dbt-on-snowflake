@@ -1,0 +1,35 @@
+
+## Project
+name: sweat_analytics_core_dbt
+version: "1.0"
+config-version: 2
+profile: sweat_analytics_core_dbt
+
+## Sources
+model-paths: [models]
+analysis-paths: [analysis]
+test-paths: [tests]
+seed-paths: [seeds]
+macro-paths: [macros]
+snapshot-paths: [snapshots]
+
+## Target
+target-path: target
+clean-targets: [target, dbt_modules]
+
+## Models
+
+models:
+  sweat_analytics_core_dbt:
+    staging:
+      +materialized: view
+      +schema: staging
+
+    intermediate:
+      +materialized: view
+      +schema: intermediate
+
+    marts:
+      +materialized: table
+      +schema: marts
+

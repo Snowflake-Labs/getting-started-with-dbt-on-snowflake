@@ -1,5 +1,0 @@
-# packages:
-#   - package: dbt-labs/dbt_utils
-#     version: 1.3.0 
-#   - package: Snowflake-Labs/dbt_semantic_view
-#     version: 1.0.3
