@@ -1,0 +1,10 @@
+version: 2
+
+sources:
+  - name: members
+    database: DEV_SWEATRAN
+    schema: RAW_MEMBERS
+    tables:
+      - name: users
+      - name: subscriptions
+      - name: profiles
