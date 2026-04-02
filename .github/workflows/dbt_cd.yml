@@ -50,16 +50,19 @@ jobs:
       - name: Full Production Build
         # In CD, we run the full project to ensure Production is 100% synced
         run: |
-          snow dbt execute tasty_bytes build
+          snow dbt execute tasty_bytes build --empty
 
+      - name: Ensure Stage Exists
+        run: |
+          snow sql -q "CREATE SCHEMA IF NOT EXISTS TASTY_BYTES_DBT_DB.OPERATIONS; CREATE STAGE IF NOT EXISTS TASTY_BYTES_DBT_DB.OPERATIONS.DBT_ARTIFACTS DIRECTORY = (ENABLE = TRUE);"
+          
       - name: Archive Production Manifest
         run: |
-          cd tasty_bytes_dbt_demo
-          # We explicitly set the target to 'prod' if your profiles.yml supports it,
-          # OR we rely on the Snowflake CLI connection to define the 'prod' context.
-          dbt compile --target prod
-          
-          # The manifest is always generated in the target/ folder
-          snow stage copy target/manifest.json @TASTY_BYTES_DBT_DB.OPERATIONS.DBT_ARTIFACTS \
-            --connection "default" \
+          # 1. Use 'snow dbt execute' with 'compile' to ensure 
+          # the Snowflake CLI connection is used (fixing the password error)
+          snow dbt execute tasty_bytes compile --source tasty_bytes_dbt_demo
+
+          # 2. Upload the manifest
+          # The file is generated in the project's target folder
+          snow stage copy tasty_bytes_dbt_demo/target/manifest.json @TASTY_BYTES_DBT_DB.OPERATIONS.DBT_ARTIFACTS \
             --overwrite
