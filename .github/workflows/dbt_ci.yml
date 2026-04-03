@@ -48,6 +48,20 @@ jobs:
             --profiles-dir tasty_bytes_dbt_demo \
             --force
 
-      - name: Execute Slim CI (Build Modified)
+      - name: Download Production State
         run: |
-          snow dbt execute tasty_bytes build
+          # 1. Create a local directory to hold the state
+          mkdir -p state
+          
+          # 2. Use the Snowflake CLI to download the manifest 
+          # from your artifacts stage to the local 'state' folder
+          # Note: The syntax is @STAGE_NAME/file_name local_path
+          snow stage copy @TASTY_BYTES_DBT_DB.OPERATIONS.DBT_ARTIFACTS/manifest.json ./state --overwrite
+
+      - name: Execute Slim CI
+        run: |
+          # Use --empty to keep it fast, and --state to compare against production
+          snow dbt execute tasty_bytes build \
+            --select state:modified+ \
+            --state ./state \
+            --empty
