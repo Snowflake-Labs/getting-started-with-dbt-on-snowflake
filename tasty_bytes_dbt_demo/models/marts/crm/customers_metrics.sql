@@ -30,6 +30,7 @@ customer_orders as (
 ),
 final as (
     select
+        "KPI" AS INFO,
         customers.CUSTOMER_ID,
         customers.FIRST_NAME,
         customers.LAST_NAME,
