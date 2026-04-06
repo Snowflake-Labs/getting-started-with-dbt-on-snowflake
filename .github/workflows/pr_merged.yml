@@ -1,0 +1,51 @@
+name: PR Accepted Deployment
+run-name: PR from ${{ github.actor }} accepted - triggered a ${{ github.event_name }}
+on:
+  push:
+    branches: [ main ]
+
+permissions:
+  contents: read
+  id-token: write
+
+jobs:
+  run-snowflake-dbt-job:
+    name: "Run on Accepted PR"
+    runs-on: ubuntu-latest
+    environment: prod # Must match the OIDC subject's environment
+    env:
+      SNOWFLAKE_CLI_FEATURES_ENABLE_DBT: true
+      SNOWFLAKE_ACCOUNT: ${{ secrets.SNOWFLAKE_ACCOUNT }}
+      # SNOWFLAKE_PASSWORD: ${{ secrets.SNOWFLAKE_PAT }} # Snowflake password is required if you aren't using OIDC
+      SNOWFLAKE_DATABASE: ${{ vars.SNOWFLAKE_DATABASE }}
+      SNOWFLAKE_SCHEMA: ${{ vars.SNOWFLAKE_SCHEMA }}
+
+    steps:
+      # Check out repository code
+      # Gets the latest code from the pull request branch
+      - name: Check out repository code
+        uses: actions/checkout@v4
+
+      - name: Install Snowflake CLI
+        uses: snowflakedb/snowflake-cli-action@v2.0
+        with: # Ensures Snowflake CLI will search for OIDC users matching this subject
+          use-oidc: true
+
+      - name: Check Snowflake CLI Version
+        run: snow --version
+
+      # The -x is shorthand for --temporary-connection
+      - run: snow connection test -x
+
+      # The --force setting creates the object or updates it if it already exists
+      # You can remove the "--source" flag if your dbt_project.yml is at root of your repo
+      # The --default-target flag ensures the dbt project object compiles and executes with your prod target
+      - name: Create a new dbt project object in ${{ vars.SNOWFLAKE_DATABASE }}.${{ vars.SNOWFLAKE_SCHEMA }}
+        run: snow dbt deploy tasty_bytes_dbt_object_gh_action --source ./tasty_bytes --default-target prod --dbt-version 1.10.15 --force -x
+
+      - name: List all of the snowflake dbt project objects on your account
+        run: snow dbt list -x
+
+      # (optional) Uncomment the lines below and follow Step 7 if you want to manage Task orchestration via source control
+      # - name: Run schedules.sql to create or alter tasks for tasty_bytes_dbt_object_gh_action
+      #   run: snow sql -f ${{ github.workspace }}/tasty_bytes/schedules.sql -x
