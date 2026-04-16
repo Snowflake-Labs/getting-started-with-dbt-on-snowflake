@@ -38,6 +38,9 @@ jobs:
       # The -x is shorthand for --temporary-connection
       - run: snow connection test -x
 
+      - name: Clone Production Database for Testing
+        run: snow sql -q "CREATE DATABASE ${{ github.actor }}_dev_dbt_db CLONE tasty_bytes_dbt_db" -x
+
       # The --force setting creates the object or updates it if it already exists
       # You can remove the "--source" flag if your dbt_project.yml is at root of your repo
       - name: Create a new tester dbt project object in ${{ vars.SNOWFLAKE_DATABASE }}.${{ vars.SNOWFLAKE_SCHEMA }}
