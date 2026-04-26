@@ -302,11 +302,13 @@ FROM @tasty_bytes_dbt_db.public.s3load/raw_customer/customer_loyalty/;
 
 -- order_header table load
 COPY INTO tasty_bytes_dbt_db.raw.order_header
-FROM @tasty_bytes_dbt_db.public.s3load/raw_pos/order_header/;
+FROM @tasty_bytes_dbt_db.public.s3load/raw_pos/order_header/
+SIZE_LIMIT = 200000;
 
 -- order_detail table load
 COPY INTO tasty_bytes_dbt_db.raw.order_detail
-FROM @tasty_bytes_dbt_db.public.s3load/raw_pos/order_detail/;
+FROM @tasty_bytes_dbt_db.public.s3load/raw_pos/order_detail/
+SIZE_LIMIT = 200000;
 
 -- =============================================================================
 -- Setup complete
