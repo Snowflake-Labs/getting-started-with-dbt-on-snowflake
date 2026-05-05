@@ -2,20 +2,20 @@ tasty_bytes:
   target: dev
   outputs:
     dev:
-      type: snowflake
-      account: 'not needed'
-      user: 'not needed'
-      role: accountadmin
+      account: '_' # Put any value here, it will be overwritten by a GitHub repository secret
       database: tasty_bytes_dbt_db
       schema: dev
-      warehouse: tasty_bytes_dbt_wh
-      threads: 8
-    prod:
+      role: ACCOUNTADMIN # Use whichever role has USAGE on the database and schema
       type: snowflake
-      account: 'not needed'
-      user: 'not needed'
-      role: accountadmin
+      warehouse: tasty_bytes_dbt_wh
+      user: '_' # Put any value here, it will be overwritten by a GitHub repository secret
+      threads: 8 # Snowflake recommends 8 threads
+    prod:
+      account: '_' # Put any value here, it will be overwritten by a GitHub repository secret
       database: tasty_bytes_dbt_db
       schema: prod
+      role: ACCOUNTADMIN # Use whichever role has USAGE on the database and schema
+      type: snowflake
       warehouse: tasty_bytes_dbt_wh
-      threads: 8
+      user: '_' # Put any value here, it will be overwritten by a GitHub repository secret
+      threads: 8 # Snowflake recommends 8 threads
