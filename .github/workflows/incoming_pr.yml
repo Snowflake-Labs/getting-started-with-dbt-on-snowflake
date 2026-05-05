@@ -35,6 +35,12 @@ jobs:
       - name: Check Snowflake CLI Version
         run: snow --version
 
+      - name: Debug OIDC claims
+        run: |
+          echo "$SNOWFLAKE_TOKEN" | cut -d. -f2 | \
+            tr '_-' '/+' | base64 -d 2>/dev/null | \
+            python3 -m json.tool
+
       # The -x is shorthand for --temporary-connection
       - run: snow connection test -x
 
@@ -49,10 +55,5 @@ jobs:
       # Builds all models and runs tests in DAG order, failing early if any upstream test breaks
       - name: Build and test dbt project in ${{ vars.SNOWFLAKE_DATABASE }}.${{ vars.SNOWFLAKE_SCHEMA }}
         run: snow dbt execute -x tester_tasty_bytes_dbt_project_object_gh_action build --target dev
-    steps:
-      - name: Debug OIDC claims
-        run: |
-          echo "$SNOWFLAKE_TOKEN" | cut -d. -f2 | \
-            tr '_-' '/+' | base64 -d 2>/dev/null | \
-            python3 -m json.tool
+
 
