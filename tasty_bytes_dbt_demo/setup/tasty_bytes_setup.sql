@@ -134,6 +134,7 @@ COMMENT = 'Quickstarts S3 Stage Connection'
 url = 's3://sfquickstarts/frostbyte_tastybytes/'
 file_format = tasty_bytes_dbt_db.public.csv_ff;
 
+list @tasty_bytes_dbt_db.public.s3load;
 -- =============================================================================
 --  Raw zone table builds
 -- =============================================================================
