@@ -10,6 +10,15 @@ tasty_bytes:
       warehouse: tasty_bytes_dbt_wh
       user: '_' # Put any value here, it will be overwritten by a GitHub repository secret
       threads: 8 # Snowflake recommends 8 threads
+    ci:
+      account: '_' # Put any value here, it will be overwritten by a GitHub repository secret
+      database: tasty_bytes_dbt_db
+      schema: "{{ env_var('SNOWFLAKE_SCHEMA') }}"
+      role: ACCOUNTADMIN # Use whichever role has USAGE on the database and schema
+      type: snowflake
+      warehouse: tasty_bytes_dbt_wh
+      user: '_' # Put any value here, it will be overwritten by a GitHub repository secret
+      threads: 8 # Snowflake recommends 8 threads
     prod:
       account: '_' # Put any value here, it will be overwritten by a GitHub repository secret
       database: tasty_bytes_dbt_db

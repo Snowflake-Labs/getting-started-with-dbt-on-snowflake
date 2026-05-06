@@ -4,6 +4,8 @@ on:
   push:
     branches: [ main ]
 
+  workflow_dispatch:
+
 permissions:
   contents: read
   id-token: write
@@ -36,6 +38,15 @@ jobs:
 
       # The -x is shorthand for --temporary-connection
       - run: snow connection test -x
+
+      - name: Drop cloned schemas after PR merge
+        run: |
+          BRANCH_NAME=$(echo "${GITHUB_HEAD_REF}" | sed 's/[^a-zA-Z0-9]/_/g' | tr '[:lower:]' '[:upper:]')
+          SCHEMAS=$(snow sql -q "SELECT SCHEMA_NAME FROM ${{ vars.SNOWFLAKE_DATABASE }}.INFORMATION_SCHEMA.SCHEMATA WHERE \
+          SCHEMA_NAME LIKE '%_${BRANCH_NAME}';"  --format csv)
+          for SCHEMA in $SCHEMAS; do
+            snow sql -q "DROP SCHEMA IF EXISTS ${{ vars.SNOWFLAKE_DATABASE }}.${SCHEMA} CASCADE;"
+          done
 
       # The --force setting creates the object or updates it if it already exists
       # You can remove the "--source" flag if your dbt_project.yml is at root of your repo

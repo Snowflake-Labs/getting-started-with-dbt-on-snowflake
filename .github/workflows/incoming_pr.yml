@@ -21,7 +21,7 @@ jobs:
       SNOWFLAKE_ACCOUNT: ${{ secrets.SNOWFLAKE_ACCOUNT }}
       # SNOWFLAKE_PASSWORD: ${{ secrets.SNOWFLAKE_PAT }} # Snowflake password is required if you aren't using OIDC
       SNOWFLAKE_DATABASE: ${{ vars.SNOWFLAKE_DATABASE }}
-      SNOWFLAKE_SCHEMA: ${{ vars.SNOWFLAKE_SCHEMA }}
+      SNOWFLAKE_SCHEMA: 'TEST' #${{ vars.SNOWFLAKE_SCHEMA }}
 
     steps:
       # Check out repository code
@@ -37,14 +37,19 @@ jobs:
       - name: Check Snowflake CLI Version
         run: snow --version
 
-      - name: Debug OIDC claims
-        run: |
-          echo "$SNOWFLAKE_TOKEN" | cut -d. -f2 | \
-            tr '_-' '/+' | base64 -d 2>/dev/null | \
-            python3 -m json.tool
-
       # The -x is shorthand for --temporary-connection
       - run: snow connection test -x
+
+      # Clone prod schema for testing
+      - name: Clone all prod schemas with feature branch suffix
+        run: |
+          BRANCH_NAME=$(echo "${GITHUB_HEAD_REF}" | sed 's/[^a-zA-Z0-9]/_/g' | tr '[:lower:]' '[:upper:]')
+          SCHEMAS=$(snow sql -q "SELECT SCHEMA_NAME FROM ${{ vars.SNOWFLAKE_DATABASE }}.INFORMATION_SCHEMA.SCHEMATA \
+          WHERE SCHEMA_NAME LIKE 'PROD%';" --format csv)
+          for SCHEMA in $SCHEMAS; do
+            snow sql -q "CREATE SCHEMA IF NOT EXISTS ${{ vars.SNOWFLAKE_DATABASE }}.${SNOWFLAKE_SCHEMA}_${BRANCH_NAME} \
+            CLONE ${{ vars.SNOWFLAKE_DATABASE }}.${SCHEMA} COPY GRANTS;" 
+          done
 
       # The --force setting creates the object or updates it if it already exists
       # You can remove the "--source" flag if your dbt_project.yml is at root of your repo
@@ -56,6 +61,4 @@ jobs:
 
       # Builds all models and runs tests in DAG order, failing early if any upstream test breaks
       - name: Build and test dbt project in ${{ vars.SNOWFLAKE_DATABASE }}.${{ vars.SNOWFLAKE_SCHEMA }}
-        run: snow dbt execute -x tester_tasty_bytes_dbt_project_object_gh_action build --target dev
-
-
+        run: snow dbt execute -x tester_tasty_bytes_dbt_project_object_gh_action build --target ci
