@@ -1,0 +1,28 @@
+[sqlfluff]
+dialect = snowflake
+templater = jinja
+max_line_length = 180
+runaway_limit = 10
+processes = 4
+exclude_rules = AM04
+paths = .
+
+[sqlfluff:indentation]
+tab_space_size = 4
+indent_unit = space
+
+[sqlfluff:layout:type:comma]
+line_position = trailing
+
+[sqlfluff:rules:capitalisation.keywords]
+capitalisation_policy = upper
+
+[sqlfluff:rules:capitalisation.identifiers]
+capitalisation_policy = upper
+
+[sqlfluff:rules:capitalisation.functions]
+capitalisation_policy = upper
+
+[sqlfluff:rules:convention.terminator]
+require_final_semicolon = true
+
