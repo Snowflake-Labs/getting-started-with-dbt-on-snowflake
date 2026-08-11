@@ -5,6 +5,7 @@ config-version: 2
 profile: tasty_bytes
 
 ## Sources
+## test
 model-paths: [models]
 analysis-paths: [analysis]
 test-paths: [tests]
