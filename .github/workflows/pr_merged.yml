@@ -41,7 +41,7 @@ jobs:
       # You can remove the "--source" flag if your dbt_project.yml is at root of your repo
       # The --default-target flag ensures the dbt project object compiles and executes with your prod target
       - name: Create a new dbt project object in ${{ vars.SNOWFLAKE_DATABASE }}.${{ vars.SNOWFLAKE_SCHEMA }}
-        run: snow dbt deploy tasty_bytes_dbt_object_gh_action --source ./tasty_bytes --default-target prod --dbt-version 1.10.15 --force -x
+        run: snow dbt deploy tasty_bytes_dbt_object_gh_action --source ./tasty_bytes_dbt_demo --default-target prod --dbt-version 1.10.15 --force -x
 
       - name: List all of the snowflake dbt project objects on your account
         run: snow dbt list -x
