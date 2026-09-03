@@ -2,20 +2,20 @@ tasty_bytes:
   target: dev
   outputs:
     dev:
-      type: snowflake
-      account: 'not needed'
-      user: 'not needed'
-      role: accountadmin
+      account: '_' # Put any value here, it will be overwritten by a CI/CD platform secret or variable
       database: tasty_bytes_dbt_db
       schema: dev
-      warehouse: tasty_bytes_dbt_wh
-      threads: 8
-    prod:
+      role: ACCOUNTADMIN # Use whichever role has USAGE on the database and schema
       type: snowflake
-      account: 'not needed'
-      user: 'not needed'
-      role: accountadmin
+      warehouse: TASTY_BYTES_DBT_WH
+      user: '_' # Put any value here, it will be overwritten by a CI/CD platform secret or variable
+      threads: 8 # Snowflake recommends 8 threads
+    prod:
+      account: '_' # Put any value here, it will be overwritten by a CI/CD platform secret or variable
       database: tasty_bytes_dbt_db
       schema: prod
-      warehouse: tasty_bytes_dbt_wh
-      threads: 8
+      role: ACCOUNTADMIN # Use whichever role has USAGE on the database and schema
+      type: snowflake
+      warehouse: TASTY_BYTES_DBT_WH
+      user: '_' # Put any value here, it will be overwritten by a CI/CD platform secret or variable
+      threads: 8 # Snowflake recommends 8 threads
