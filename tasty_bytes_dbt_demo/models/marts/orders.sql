@@ -30,8 +30,8 @@ SELECT
     oh.order_amount,
     oh.order_tax_amount,
     oh.order_discount_amount,
-    oh.order_total..
-    'test columns' as test
+    oh.order_total,
+    'test column' as test
 FROM {{ ref('raw_pos_order_detail') }} od
 JOIN {{ ref('raw_pos_order_header') }} oh
     ON od.order_id = oh.order_id
