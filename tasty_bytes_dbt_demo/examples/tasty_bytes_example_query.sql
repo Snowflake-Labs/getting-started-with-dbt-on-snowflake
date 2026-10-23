@@ -4,7 +4,7 @@ SHOW TABLES IN SCHEMA tb_101.raw_pos;
 -- What is the scale of data? 
 SELECT COUNT(*) FROM tb_101.raw_pos.order_header;
 
--- Understand a query that might be used in a mart
+-- Understand a query that might be used in a mart sankara
 SELECT 
     cl.customer_id,
     cl.city,
