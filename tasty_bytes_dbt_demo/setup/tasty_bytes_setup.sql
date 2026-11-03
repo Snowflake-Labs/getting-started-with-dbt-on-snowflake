@@ -64,6 +64,10 @@ ALTER SCHEMA tasty_bytes_dbt_db.prod SET LOG_LEVEL = 'INFO';
 ALTER SCHEMA tasty_bytes_dbt_db.prod SET TRACE_LEVEL = 'ALWAYS';
 ALTER SCHEMA tasty_bytes_dbt_db.prod SET METRIC_LEVEL = 'ALL';
 
+ALTER SCHEMA tasty_bytes_dbt_db.public SET LOG_LEVEL = 'INFO';
+ALTER SCHEMA tasty_bytes_dbt_db.public SET TRACE_LEVEL = 'ALWAYS';
+ALTER SCHEMA tasty_bytes_dbt_db.public SET METRIC_LEVEL = 'ALL';
+
 -- =============================================================================
 -- STEP 4: Create a GitHub secret and API integration
 -- Snowflake needs an API integration to interact with GitHub.
