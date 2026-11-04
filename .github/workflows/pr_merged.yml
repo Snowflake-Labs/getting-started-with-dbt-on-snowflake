@@ -47,5 +47,5 @@ jobs:
         run: snow dbt list -x
 
       # (optional) Uncomment the lines below and follow Step 7 if you want to manage Task orchestration via source control
-      # - name: Run schedules.sql to create or alter tasks for tasty_bytes_dbt_object_gh_action
-      #   run: snow sql -f ${{ github.workspace }}/tasty_bytes/schedules.sql -x
+      - name: Run schedules.sql to create or alter tasks for tasty_bytes_dbt_object_gh_action
+        run: snow sql -f ${{ github.workspace }}/tasty_bytes/schedules.sql -x
