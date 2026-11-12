@@ -131,12 +131,18 @@ CREATE OR REPLACE API INTEGRATION tb_dbt_git_api_integration
 
 CREATE OR REPLACE FILE FORMAT tasty_bytes_dbt_db.public.csv_ff 
 type = 'csv';
+DESCRIBE FILE FORMAT tasty_bytes_dbt_db.public.csv_ff;
 
 CREATE OR REPLACE STAGE tasty_bytes_dbt_db.public.s3load
 COMMENT = 'Quickstarts S3 Stage Connection'
 url = 's3://sfquickstarts/frostbyte_tastybytes/'
 file_format = tasty_bytes_dbt_db.public.csv_ff;
+LIST @tasty_bytes_dbt_db.public.s3load;
 
+SELECT *
+FROM @tasty_bytes_dbt_db.public.s3load/raw_pos/menu/
+
+LIMIT 10;
 -- =============================================================================
 --  Raw zone table builds
 -- =============================================================================
@@ -282,6 +288,8 @@ COMMENT = '{"origin":"sf_sit-is", "name":"tasty-bytes-dbt", "version":{"major":1
 -- country table load
 COPY INTO tasty_bytes_dbt_db.raw.country
 FROM @tasty_bytes_dbt_db.public.s3load/raw_pos/country/;
+select * from tasty_bytes_dbt_db.raw.country
+
 
 -- franchise table load
 COPY INTO tasty_bytes_dbt_db.raw.franchise
@@ -322,4 +330,5 @@ ALTER WAREHOUSE tasty_bytes_dbt_wh SET WAREHOUSE_SIZE = SMALL;
 -- Setup complete
 -- =============================================================================
 
-SELECT 'tasty_bytes_dbt_db setup is now complete' AS note;
+SELECT 'tasty_bytes_dbt_db setup is now complete' AS note ;
+
